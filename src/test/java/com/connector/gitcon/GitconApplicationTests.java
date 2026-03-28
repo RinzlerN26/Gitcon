@@ -1,0 +1,13 @@
+package com.connector.gitcon;
+
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
+
+@SpringBootTest
+class GitconApplicationTests {
+
+	@Test
+	void contextLoads() {
+	}
+
+}
