@@ -1,5 +1,8 @@
 package com.connector.gitcon.exception;
 
-public class GithubApiException {
+public class GithubApiException extends RuntimeException {
 
+    public GithubApiException(String message) {
+        super(message);
+    }
 }
