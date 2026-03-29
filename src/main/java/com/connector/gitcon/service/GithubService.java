@@ -1,7 +1,12 @@
 package com.connector.gitcon.service;
 
 import com.connector.gitcon.client.GithubClient;
+import com.connector.gitcon.dto.response.RepoResponse;
+
 import lombok.RequiredArgsConstructor;
+
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 
 @Service
@@ -10,7 +15,7 @@ public class GithubService {
 
     private final GithubClient githubClient;
 
-    public String fetchRepositories() {
+    public List<RepoResponse> fetchRepositories() {
         return githubClient.getUserRepositories();
     }
 }
