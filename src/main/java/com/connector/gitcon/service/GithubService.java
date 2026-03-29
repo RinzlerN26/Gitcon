@@ -2,8 +2,11 @@ package com.connector.gitcon.service;
 
 import com.connector.gitcon.client.GithubClient;
 import com.connector.gitcon.dto.request.CreateIssueRequest;
+import com.connector.gitcon.dto.request.CreatePrRequest;
 import com.connector.gitcon.dto.response.IssueResponse;
 import com.connector.gitcon.dto.response.RepoResponse;
+import com.connector.gitcon.dto.response.CommitResponse;
+import com.connector.gitcon.dto.response.PrResponse;
 
 import lombok.RequiredArgsConstructor;
 
@@ -26,5 +29,17 @@ public class GithubService {
                 request.getOwner(),
                 request.getRepo(),
                 request);
+    }
+
+    public List<IssueResponse> getRepoIssues(String owner, String repo) {
+        return githubClient.getRepoIssues(owner, repo);
+    }
+
+    public List<CommitResponse> getRepoCommits(String owner, String repo) {
+        return githubClient.getRepoCommits(owner, repo);
+    }
+
+    public PrResponse createPullRequest(String owner, String repo, CreatePrRequest request) {
+        return githubClient.createPullRequest(owner, repo, request);
     }
 }
