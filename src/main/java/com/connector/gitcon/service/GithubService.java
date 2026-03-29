@@ -1,6 +1,8 @@
 package com.connector.gitcon.service;
 
 import com.connector.gitcon.client.GithubClient;
+import com.connector.gitcon.dto.request.CreateIssueRequest;
+import com.connector.gitcon.dto.response.IssueResponse;
 import com.connector.gitcon.dto.response.RepoResponse;
 
 import lombok.RequiredArgsConstructor;
@@ -17,5 +19,12 @@ public class GithubService {
 
     public List<RepoResponse> fetchRepositories() {
         return githubClient.getUserRepositories();
+    }
+
+    public IssueResponse createIssue(CreateIssueRequest request) {
+        return githubClient.createIssue(
+                request.getOwner(),
+                request.getRepo(),
+                request);
     }
 }
