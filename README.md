@@ -1,10 +1,24 @@
-# 🚀 GitCon
+# GitCon
 
 GitCon demonstrates how to interact with GitHub-like resources such as repositories, issues, commits, and pull requests using REST APIs. It showcases common HTTP methods like **GET** and **POST** along with example endpoints and request bodies.
 
 ---
 
-## ⚙️ Setup & Run
+## Setup & Run
+
+## Run with Docker
+
+You can also run the application using Docker instead of running it locally.
+
+### Create `.env` File
+
+Create a `.env` file in the root directory:
+
+```env
+GITHUB_TOKEN=your_github_token_here
+```
+
+## Run Locally (Alternative)
 
 Follow these steps to run the project locally:
 
@@ -12,13 +26,13 @@ Follow these steps to run the project locally:
 
 You need to set your GitHub Personal Access Token as an environment variable.
 
-#### 👉 On PowerShell (Windows)
+#### On PowerShell (Windows)
 
 ```powershell
 $env:GITHUB_TOKEN="your_github_token_here"
 ```
 
-#### 👉 On macOS/Linux
+#### On macOS/Linux
 
 ```bash
 export GITHUB_TOKEN="your_github_token_here"
@@ -32,7 +46,7 @@ Use the Maven wrapper to start the Spring Boot application (JDK>=21 should be in
 
 ---
 
-## 📌 Features
+## Features
 
 - Fetch repositories
 - Create issues
@@ -43,9 +57,9 @@ Use the Maven wrapper to start the Spring Boot application (JDK>=21 should be in
 
 ---
 
-## 🛠️ API Endpoints
+## API Endpoints
 
-### 🔹 Get Repositories
+### Get Repositories
 
 **GET** `/api/github/repos`
 
@@ -64,7 +78,7 @@ GET https://localhost:8080/api/github/repos?id=1
 
 ---
 
-### 🔹 Create Issue
+### Create Issue
 
 **POST** `/api/github/issues`
 
@@ -94,7 +108,7 @@ POST https://localhost:8080/api/github/issues
 
 ---
 
-### 🔹 Get Issues
+### Get Issues
 
 **GET** `/api/github/{owner}/{repo}/issues`
 
@@ -108,7 +122,7 @@ GET https://localhost:8080/api/github/RinzlerN26/GitCon/issues
 
 ---
 
-### 🔹 Get Commits
+### Get Commits
 
 **GET** `/api/github/{owner}/{repo}/commits`
 
@@ -122,7 +136,7 @@ GET https://localhost:8080/api/github/RinzlerN26/GitCon/commits
 
 ---
 
-### 🔹 Create Pull Request
+### Create Pull Request
 
 **POST** `/api/github/{owner}/{repo}/pulls`
 
@@ -152,7 +166,7 @@ POST https://localhost:8080/api/github/RinzlerN26/GitCon/pulls
 
 ---
 
-## 🧪 Testing
+## Testing
 
 You can test these APIs using:
 
@@ -162,7 +176,7 @@ You can test these APIs using:
 
 ---
 
-## ⚙️ Tech Stack
+## Tech Stack
 
 - Backend: Spring Boot
 - API Testing: Postman
@@ -170,7 +184,7 @@ You can test these APIs using:
 
 ---
 
-## 📖 Notes
+## Notes
 
 - GET requests do not require a request body.
 - POST requests require a JSON body for creating resources.

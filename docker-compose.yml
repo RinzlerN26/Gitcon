@@ -1,0 +1,13 @@
+version: '3'
+
+services:
+  
+  spring-server:
+    build:
+      context: . 
+      dockerfile: Dockerfile
+    container_name: gitcon-spring-server 
+    ports:
+      - "8080:8080" 
+    env_file:
+      - .env
