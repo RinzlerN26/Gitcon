@@ -24,7 +24,7 @@ $env:GITHUB_TOKEN="your_github_token_here"
 export GITHUB_TOKEN="your_github_token_here"
 ```
 
-Use the Maven wrapper to start the Spring Boot application:
+Use the Maven wrapper to start the Spring Boot application (JDK>=21 should be installed):
 
 ```
 ./mvnw spring-boot:run
