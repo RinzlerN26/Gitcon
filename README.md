@@ -1,6 +1,6 @@
 # 🚀 GitCon
 
-GitCon is a API-based project that demonstrates how to interact with GitHub-like resources such as repositories, issues, commits, and pull requests using REST APIs. It showcases common HTTP methods like **GET** and **POST** along with example endpoints and request bodies.
+GitCon demonstrates how to interact with GitHub-like resources such as repositories, issues, commits, and pull requests using REST APIs. It showcases common HTTP methods like **GET** and **POST** along with example endpoints and request bodies.
 
 ---
 
