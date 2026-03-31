@@ -18,6 +18,12 @@ Create a `.env` file in the root directory:
 GITHUB_TOKEN=your_github_token_here
 ```
 
+Run the below command:
+
+```
+docker compose up -d
+```
+
 ## Run Locally (Alternative)
 
 Follow these steps to run the project locally:
