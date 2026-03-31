@@ -8,14 +8,17 @@ GitCon is a API-based project that demonstrates how to interact with GitHub-like
 
 Follow these steps to run the project locally:
 
-### 1️⃣ Set GitHub Token (Required)
+### Set GitHub Token (Required)
 
 You need to set your GitHub Personal Access Token as an environment variable.
 
 #### 👉 On PowerShell (Windows)
 
-```powershell
+```
+
 $env:GITHUB_TOKEN="your_github_token_here"
+
+```
 
 #### 👉 On macOS/Linux
 
@@ -81,7 +84,7 @@ Create a new issue in a repository.
 
 POST https://template.postman-echo.com/api/github/issues
 
-````
+```
 
 #### Request Body (JSON)
 
@@ -92,7 +95,7 @@ POST https://template.postman-echo.com/api/github/issues
   "title": "Test Issue From GitCon",
   "body": "This issue was created via Spring Boot API"
 }
-````
+```
 
 #### Response
 
