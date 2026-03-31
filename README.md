@@ -14,26 +14,20 @@ You need to set your GitHub Personal Access Token as an environment variable.
 
 #### 👉 On PowerShell (Windows)
 
-```
-
+```powershell
 $env:GITHUB_TOKEN="your_github_token_here"
-
 ```
 
 #### 👉 On macOS/Linux
 
-```
-
+```bash
 export GITHUB_TOKEN="your_github_token_here"
-
 ```
 
 Use the Maven wrapper to start the Spring Boot application:
 
 ```
-
 ./mvnw spring-boot:run
-
 ```
 
 ---
@@ -60,9 +54,7 @@ Fetch a list of repositories.
 #### Example Request
 
 ```
-
-GET https://template.postman-echo.com/api/github/repos?id=1
-
+GET https://localhost:8080/api/github/repos?id=1
 ```
 
 #### Response
@@ -81,9 +73,7 @@ Create a new issue in a repository.
 #### Example Request
 
 ```
-
-POST https://template.postman-echo.com/api/github/issues
-
+POST https://localhost:8080/api/github/issues
 ```
 
 #### Request Body (JSON)
@@ -113,7 +103,7 @@ Fetch all issues for a given repository.
 #### Example Request
 
 ```
-GET https://template.postman-echo.com/api/github/RinzlerN26/GitCon/issues
+GET https://localhost:8080/api/github/RinzlerN26/GitCon/issues
 ```
 
 ---
@@ -127,7 +117,7 @@ Retrieve commit history for a repository.
 #### Example Request
 
 ```
-GET https://template.postman-echo.com/api/github/RinzlerN26/GitCon/commits
+GET https://localhost:8080/api/github/RinzlerN26/GitCon/commits
 ```
 
 ---
@@ -141,7 +131,7 @@ Create a new pull request.
 #### Example Request
 
 ```
-POST https://template.postman-echo.com/api/github/RinzlerN26/GitCon/pulls
+POST https://localhost:8080/api/github/RinzlerN26/GitCon/pulls
 ```
 
 #### Request Body (JSON)
@@ -174,7 +164,7 @@ You can test these APIs using:
 
 ## ⚙️ Tech Stack
 
-- Backend: Spring Boot (assumed)
+- Backend: Spring Boot
 - API Testing: Postman
 - Data Format: JSON
 
