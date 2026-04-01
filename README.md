@@ -198,13 +198,13 @@ You can test these APIs using:
 
 ---
 
-### Screenshots
+## Screenshots
 
-## Running the application
+### Running the application
 
 <img width="1769" height="828" alt="image" src="https://github.com/user-attachments/assets/39948c74-fdd0-4d2a-9103-2fb72791c889" />
 
-## Testing Endpoints
+### Testing Endpoints
 
 <img width="1370" height="820" alt="image" src="https://github.com/user-attachments/assets/06f14b14-6d0d-4373-9b11-431a70012d83" />
 
