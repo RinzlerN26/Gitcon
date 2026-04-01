@@ -6,6 +6,7 @@ services:
     build:
       context: . 
       dockerfile: Dockerfile
+      target: dev
     container_name: gitcon-spring-server 
     ports:
       - "8080:8080" 

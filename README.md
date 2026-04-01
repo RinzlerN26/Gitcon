@@ -21,7 +21,7 @@ GITHUB_TOKEN=your_github_token_here
 Run the below command:
 
 ```
-docker compose up -d
+docker compose -f docker-compose.prod.yml up -d
 ```
 
 ## Run Locally (Alternative)

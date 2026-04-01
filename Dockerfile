@@ -1,6 +1,4 @@
-# Development
-
-FROM eclipse-temurin:21
+FROM eclipse-temurin:21 AS dev
 
 WORKDIR /app
 
@@ -10,30 +8,29 @@ RUN ./mvnw dependency:go-offline
 
 COPY src ./src
 
+EXPOSE 8080
+
 CMD ["./mvnw", "spring-boot:run"]
 
-# Production
 
-# FROM eclipse-temurin:21 AS build
+FROM eclipse-temurin:21 AS build
 
-# WORKDIR /app
+WORKDIR /app
 
-# COPY .mvn/ .mvn
+COPY .mvn/ .mvn
+COPY mvnw pom.xml ./
+RUN ./mvnw dependency:go-offline
 
-# COPY mvnw pom.xml ./
+COPY src ./src
+RUN ./mvnw package -DskipTests
 
-# RUN ./mvnw dependency:go-offline
 
-# COPY src ./src
+FROM eclipse-temurin:21-jre AS prod
 
-# RUN ./mvnw package -DskipTests
+WORKDIR /app
 
-# FROM eclipse-temurin:21-jre
+COPY --from=build /app/target/*.jar app.jar
 
-# WORKDIR /app
+EXPOSE 8080
 
-# COPY --from=build /app/target/*.jar app.jar
-
-# EXPOSE 8080
-
-# CMD ["java", "-jar", "app.jar"]
+CMD ["java", "-jar", "app.jar"]
