@@ -74,7 +74,7 @@ Fetch a list of repositories.
 #### Example Request
 
 ```
-GET https://localhost:8080/api/github/repos?id=1
+GET https://localhost:8080/api/github/repos
 ```
 
 #### Response
