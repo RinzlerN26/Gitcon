@@ -16,6 +16,7 @@ Create a `.env` file in the root directory:
 
 ```env
 GITHUB_TOKEN=your_github_token_here
+GEMINI_API_KEY=your_gemini_api_key_here
 ```
 
 Run the below command:
@@ -59,6 +60,7 @@ Use the Maven wrapper to start the Spring Boot application (JDK>=21 should be in
 - Retrieve issues
 - Get commit history
 - Create pull requests
+- AI-powered secrets detection for commit/file content
 - RESTful API design with clear examples
 
 ---
@@ -138,6 +140,30 @@ Retrieve commit history for a repository.
 
 ```
 GET https://localhost:8080/api/github/RinzlerN26/GitCon/commits
+```
+
+---
+
+### Scan for Secrets
+
+**POST** `/api/security/scan-secrets`
+
+Analyze code or commit content for hardcoded credentials, tokens, API keys, and other sensitive secrets using an AI model.
+
+#### Example Request
+
+```
+POST https://localhost:8080/api/security/scan-secrets
+```
+
+#### Request Body (JSON)
+
+```json
+{
+  "commitContent": "String token = \"ghp_example\";",
+  "fileName": "Example.java",
+  "author": "John Doe"
+}
 ```
 
 ---
