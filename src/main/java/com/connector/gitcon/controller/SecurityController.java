@@ -9,15 +9,28 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 @Slf4j
 @RestController
 @RequestMapping("/api/security")
 @RequiredArgsConstructor
+@Tag(name = "Security", description = "Security scanning APIs")
 public class SecurityController {
 
     private final SecretsDetectionService secretsDetectionService;
 
     @PostMapping("/scan-secrets")
+    @Operation(summary = "Scan code for secrets", description = "Scans source code for exposed API keys, passwords, tokens and other sensitive credentials.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Scan completed successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid request", content = @Content),
+            @ApiResponse(responseCode = "500", description = "Internal server error", content = @Content)
+    })
     public ResponseEntity<SecretsDetectionResponse> scanForSecrets(
             @Valid @RequestBody SecretsDetectionRequest request) {
         log.info("Received secrets scan request for file: {}", request.getFileName());
