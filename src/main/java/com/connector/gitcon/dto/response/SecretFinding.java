@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class SecretFinding {
+    private String fileName;
     private String secretType;
     private String severity;
     private String description;

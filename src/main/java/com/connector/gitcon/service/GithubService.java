@@ -6,6 +6,7 @@ import com.connector.gitcon.dto.request.CreatePrRequest;
 import com.connector.gitcon.dto.response.IssueResponse;
 import com.connector.gitcon.dto.response.RepoResponse;
 import com.connector.gitcon.dto.response.CommitResponse;
+import com.connector.gitcon.dto.response.GithubCommitResponse;
 import com.connector.gitcon.dto.response.PrResponse;
 
 import lombok.RequiredArgsConstructor;
@@ -41,5 +42,13 @@ public class GithubService {
 
     public PrResponse createPullRequest(String owner, String repo, CreatePrRequest request) {
         return githubClient.createPullRequest(owner, repo, request);
+    }
+
+    public GithubCommitResponse getCommitDetails(
+            String owner,
+            String repo,
+            String sha) {
+
+        return githubClient.getCommitDetails(owner, repo, sha);
     }
 }

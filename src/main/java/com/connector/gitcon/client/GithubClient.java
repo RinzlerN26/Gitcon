@@ -104,6 +104,24 @@ public class GithubClient {
                                 .block();
         }
 
+        public GithubCommitResponse getCommitDetails(
+                        String owner,
+                        String repo,
+                        String sha) {
+
+                return webClient
+                                .get()
+                                .uri("/repos/{owner}/{repo}/commits/{sha}", owner, repo, sha)
+                                .retrieve()
+                                .onStatus(
+                                                status -> status.isError(),
+                                                response -> response.bodyToMono(String.class)
+                                                                .map(body -> new GithubApiException(
+                                                                                "GitHub API Error: " + body)))
+                                .bodyToMono(GithubCommitResponse.class)
+                                .block();
+        }
+
         private IssueResponse mapIssue(GithubIssueResponse res) {
                 IssueResponse dto = new IssueResponse();
                 dto.setId(res.getId());

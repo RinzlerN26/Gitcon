@@ -67,6 +67,7 @@ public class SecretsDetectionService {
         if (findingsNode.isArray()) {
             findingsNode.forEach(node -> {
                 SecretFinding finding = new SecretFinding(
+                        node.path("fileName").asText(),
                         node.path("secretType").asText(),
                         node.path("severity").asText(),
                         node.path("description").asText(),
