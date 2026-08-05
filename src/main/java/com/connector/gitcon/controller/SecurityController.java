@@ -38,9 +38,9 @@ public class SecurityController {
         SecretsDetectionResponse response = secretsDetectionService.scanForSecrets(request);
 
         if (response.isSecretsFound()) {
-            log.warn("Secrets found in file: {} - Risk Level: {}");
+            log.warn("Secrets found in file");
         } else {
-            log.info("No secrets detected in file: {}");
+            log.info("No secrets detected");
         }
 
         return ResponseEntity.ok(response);

@@ -31,7 +31,7 @@ public class SecretsDetectionService {
 
     public SecretsDetectionResponse scanForSecrets(SecretsDetectionRequest request) {
         try {
-            log.info("Starting secrets scan for file");
+            log.info("Starting secrets scan for commit {}", request.getCommitHash());
 
             GithubCommitResponse commit = githubClient.getCommitDetails(
                     request.getOwner(),
@@ -47,6 +47,17 @@ public class SecretsDetectionService {
                 }
                 if (content.getContent().isBlank()) {
                     continue;
+                }
+                if (commit.getFiles() == null || commit.getFiles().isEmpty()) {
+
+                    return SecretsDetectionResponse.builder()
+                            .author(commit.getCommit().getAuthor().getName())
+                            .secretsFound(false)
+                            .findings(new ArrayList<>())
+                            .riskLevel("LOW")
+                            .timestamp(LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME))
+                            .scanId(UUID.randomUUID().toString())
+                            .build();
                 }
                 String analysisResult = geminiClient.analyzeForSecrets(content.getContent());
                 findings.addAll(
