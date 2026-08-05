@@ -18,7 +18,11 @@ public class CommitContentService {
             GithubCommitResponse.ChangedFile file) {
 
         if (!fileTypeFilterService.isScannable(file.getFilename())) {
-            return null;
+            return ScannableContent.builder()
+                    .fileName(file.getFilename())
+                    .skipped(true)
+                    .skipReason("Unsupported file type")
+                    .build();
         }
 
         if (file.getPatch() != null && !file.getPatch().isBlank()) {

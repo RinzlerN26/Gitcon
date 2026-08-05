@@ -14,4 +14,6 @@ public class ScannableContent {
     private String content;
     private boolean patchBased;
     private boolean fallbackUsed;
+    private boolean skipped;
+    private String skipReason;
 }

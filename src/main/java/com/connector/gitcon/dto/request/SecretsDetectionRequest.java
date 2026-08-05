@@ -9,10 +9,12 @@ import jakarta.validation.constraints.NotBlank;
 @NoArgsConstructor
 @AllArgsConstructor
 public class SecretsDetectionRequest {
-    @NotBlank(message = "Commit content is required")
-    private String commitContent;
+    @NotBlank
+    private String owner;
 
-    private String fileName;
+    @NotBlank
+    private String repository;
 
-    private String author;
+    @NotBlank
+    private String commitHash;
 }

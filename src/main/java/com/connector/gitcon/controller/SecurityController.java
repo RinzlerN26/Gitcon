@@ -33,15 +33,14 @@ public class SecurityController {
     })
     public ResponseEntity<SecretsDetectionResponse> scanForSecrets(
             @Valid @RequestBody SecretsDetectionRequest request) {
-        log.info("Received secrets scan request for file: {}", request.getFileName());
+        log.info("Received secrets scan request for file: {}");
 
         SecretsDetectionResponse response = secretsDetectionService.scanForSecrets(request);
 
         if (response.isSecretsFound()) {
-            log.warn("Secrets found in file: {} - Risk Level: {}",
-                    request.getFileName(), response.getRiskLevel());
+            log.warn("Secrets found in file: {} - Risk Level: {}");
         } else {
-            log.info("No secrets detected in file: {}", request.getFileName());
+            log.info("No secrets detected in file: {}");
         }
 
         return ResponseEntity.ok(response);
