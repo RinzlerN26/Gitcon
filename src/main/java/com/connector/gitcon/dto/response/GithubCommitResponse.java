@@ -40,6 +40,8 @@ public class GithubCommitResponse {
 
         private String blob_url;
 
+        private String contents_url;
+
         private Integer additions;
 
         private Integer deletions;

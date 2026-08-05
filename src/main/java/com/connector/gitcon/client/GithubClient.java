@@ -2,6 +2,7 @@ package com.connector.gitcon.client;
 
 import lombok.RequiredArgsConstructor;
 
+import java.util.Base64;
 import java.util.List;
 
 import org.springframework.stereotype.Component;
@@ -11,6 +12,7 @@ import com.connector.gitcon.dto.request.CreateIssueRequest;
 import com.connector.gitcon.dto.request.CreatePrRequest;
 import com.connector.gitcon.dto.response.CommitResponse;
 import com.connector.gitcon.dto.response.GithubCommitResponse;
+import com.connector.gitcon.dto.response.GithubFileContentResponse;
 import com.connector.gitcon.dto.response.GithubIssueResponse;
 import com.connector.gitcon.dto.response.GithubPullRequestResponse;
 import com.connector.gitcon.dto.response.IssueResponse;
@@ -120,6 +122,30 @@ public class GithubClient {
                                                                                 "GitHub API Error: " + body)))
                                 .bodyToMono(GithubCommitResponse.class)
                                 .block();
+        }
+
+        public String downloadFile(String contentsUrl) {
+
+                GithubFileContentResponse response = webClient
+                                .get()
+                                .uri(contentsUrl.replace("https://api.github.com", ""))
+                                .retrieve()
+                                .onStatus(
+                                                status -> status.isError(),
+                                                clientResponse -> clientResponse.bodyToMono(String.class)
+                                                                .map(body -> new GithubApiException(
+                                                                                "GitHub API Error: " + body)))
+                                .bodyToMono(GithubFileContentResponse.class)
+                                .block();
+
+                if (response == null || response.getContent() == null) {
+                        return "";
+                }
+
+                byte[] decoded = Base64.getDecoder()
+                                .decode(response.getContent().replace("\n", ""));
+
+                return new String(decoded);
         }
 
         private IssueResponse mapIssue(GithubIssueResponse res) {

@@ -51,4 +51,8 @@ public class GithubService {
 
         return githubClient.getCommitDetails(owner, repo, sha);
     }
+
+    public String downloadFile(String contentsUrl) {
+        return githubClient.downloadFile(contentsUrl);
+    }
 }

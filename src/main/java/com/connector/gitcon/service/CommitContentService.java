@@ -10,11 +10,16 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class CommitContentService {
 
-    @SuppressWarnings("unused")
     private final GithubClient githubClient;
+
+    private final FileTypeFilterService fileTypeFilterService;
 
     public ScannableContent getScannableContent(
             GithubCommitResponse.ChangedFile file) {
+
+        if (!fileTypeFilterService.isScannable(file.getFilename())) {
+            return null;
+        }
 
         if (file.getPatch() != null && !file.getPatch().isBlank()) {
             return extractPatch(file);
@@ -26,8 +31,24 @@ public class CommitContentService {
     private ScannableContent downloadCompleteFile(
             GithubCommitResponse.ChangedFile file) {
 
-        throw new UnsupportedOperationException(
-                "Large diff fallback not implemented yet");
+        if (file.getContents_url() == null) {
+
+            return ScannableContent.builder()
+                    .fileName(file.getFilename())
+                    .content("")
+                    .patchBased(false)
+                    .fallbackUsed(true)
+                    .build();
+        }
+
+        String content = githubClient.downloadFile(file.getContents_url());
+
+        return ScannableContent.builder()
+                .fileName(file.getFilename())
+                .content(content)
+                .patchBased(false)
+                .fallbackUsed(true)
+                .build();
     }
 
     private ScannableContent extractPatch(
