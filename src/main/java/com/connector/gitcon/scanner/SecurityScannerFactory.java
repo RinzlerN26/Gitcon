@@ -5,20 +5,20 @@ import org.springframework.stereotype.Component;
 
 import com.connector.gitcon.enums.ScannerType;
 
-import java.util.List;
-
 @Component
 @RequiredArgsConstructor
 public class SecurityScannerFactory {
 
-        private final List<SecurityScanner> scanners;
+        private final SecretsScanner secretsScanner;
 
-        public SecurityScanner getScanner(ScannerType scannerType) {
+        public SecurityScanner getScanner(ScannerType type) {
 
-                return scanners.stream()
-                                .filter(scanner -> scanner.getScannerType() == scannerType)
-                                .findFirst()
-                                .orElseThrow(() -> new IllegalArgumentException(
-                                                "No scanner found for type: " + scannerType));
+                switch (type) {
+                        case SECRETS:
+                                return secretsScanner;
+
+                        default:
+                                throw new IllegalArgumentException("Unsupported scanner: " + type);
+                }
         }
 }
