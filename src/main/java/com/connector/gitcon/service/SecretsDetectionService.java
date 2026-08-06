@@ -1,6 +1,5 @@
 package com.connector.gitcon.service;
 
-import com.connector.gitcon.client.GeminiClient;
 import com.connector.gitcon.client.GithubClient;
 import com.connector.gitcon.dto.request.SecretsDetectionRequest;
 import com.connector.gitcon.dto.response.GithubCommitResponse;
@@ -8,11 +7,12 @@ import com.connector.gitcon.dto.response.ScanSummary;
 import com.connector.gitcon.dto.response.ScannableContent;
 import com.connector.gitcon.dto.response.SecretFinding;
 import com.connector.gitcon.dto.response.SecretsDetectionResponse;
+import com.connector.gitcon.scanner.SecurityScanner;
+import com.connector.gitcon.scanner.SecurityScannerFactory;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.JsonNode;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -24,8 +24,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class SecretsDetectionService {
 
-    private final GeminiClient geminiClient;
-    private final ObjectMapper objectMapper;
+    private final SecurityScannerFactory scannerFactory;
     private final GithubClient githubClient;
 
     private final CommitContentService commitContentService;
@@ -42,6 +41,8 @@ public class SecretsDetectionService {
             List<SecretFinding> allFindings = new ArrayList<>();
 
             List<String> riskLevels = new ArrayList<>();
+
+            SecurityScanner scanner = scannerFactory.getScanner(request.getScanType());
 
             if (commit.getFiles() == null || commit.getFiles().isEmpty()) {
 
@@ -63,10 +64,7 @@ public class SecretsDetectionService {
                 if (content.getContent().isBlank()) {
                     continue;
                 }
-                String analysisResult = geminiClient.analyzeForSecrets(content.getContent());
-                ScanSummary summary = parseFindings(
-                        analysisResult,
-                        content.getFileName());
+                ScanSummary summary = scanner.scan(content);
 
                 allFindings.addAll(summary.getFindings());
 
@@ -87,54 +85,6 @@ public class SecretsDetectionService {
         }
     }
 
-    private ScanSummary parseFindings(
-            String analysisResult,
-            String fileName) {
-
-        List<SecretFinding> findings = new ArrayList<>();
-
-        boolean secretsFound = false;
-        String riskLevel = "LOW";
-
-        try {
-
-            String cleanedResponse = cleanJsonResponse(analysisResult);
-
-            JsonNode rootNode = objectMapper.readTree(cleanedResponse);
-
-            JsonNode findingsNode = rootNode.path("findings");
-
-            secretsFound = rootNode.path("secretsFound").asBoolean(false);
-
-            riskLevel = rootNode.path("riskLevel").asText("LOW");
-
-            if (findingsNode.isArray()) {
-
-                findingsNode.forEach(node -> {
-
-                    SecretFinding finding = new SecretFinding(
-                            fileName,
-                            node.path("secretType").asText(),
-                            node.path("severity").asText(),
-                            node.path("description").asText(),
-                            node.path("lineContext").asText(),
-                            node.path("lineNumber").asInt(0),
-                            node.path("confidence").asText("MEDIUM"));
-
-                    findings.add(finding);
-                });
-            }
-
-        } catch (Exception e) {
-            log.error("Failed to parse Gemini response for file: {}", fileName, e);
-        }
-
-        return new ScanSummary(
-                secretsFound,
-                riskLevel,
-                findings);
-    }
-
     private SecretsDetectionResponse buildErrorResponse(SecretsDetectionRequest request, String errorMessage) {
         return SecretsDetectionResponse.builder()
                 .fileName("")
@@ -145,14 +95,6 @@ public class SecretsDetectionService {
                 .timestamp(LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME))
                 .scanId(UUID.randomUUID().toString())
                 .build();
-    }
-
-    private String cleanJsonResponse(String response) {
-
-        return response
-                .replace("```json", "")
-                .replace("```", "")
-                .trim();
     }
 
     private String calculateOverallRisk(List<String> riskLevels) {
