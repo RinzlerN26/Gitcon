@@ -4,6 +4,7 @@ import com.connector.gitcon.client.GeminiClient;
 import com.connector.gitcon.client.GithubClient;
 import com.connector.gitcon.dto.request.SecretsDetectionRequest;
 import com.connector.gitcon.dto.response.GithubCommitResponse;
+import com.connector.gitcon.dto.response.ScanSummary;
 import com.connector.gitcon.dto.response.ScannableContent;
 import com.connector.gitcon.dto.response.SecretFinding;
 import com.connector.gitcon.dto.response.SecretsDetectionResponse;
@@ -31,14 +32,28 @@ public class SecretsDetectionService {
 
     public SecretsDetectionResponse scanForSecrets(SecretsDetectionRequest request) {
         try {
-            log.info("Starting secrets scan for commit {}", request.getCommitHash());
+            log.info("Starting secrets scan for commit: {}", request.getCommitHash());
 
             GithubCommitResponse commit = githubClient.getCommitDetails(
                     request.getOwner(),
                     request.getRepository(),
                     request.getCommitHash());
 
-            List<SecretFinding> findings = new ArrayList<>();
+            List<SecretFinding> allFindings = new ArrayList<>();
+
+            List<String> riskLevels = new ArrayList<>();
+
+            if (commit.getFiles() == null || commit.getFiles().isEmpty()) {
+
+                return SecretsDetectionResponse.builder()
+                        .author(commit.getCommit().getAuthor().getName())
+                        .secretsFound(false)
+                        .findings(new ArrayList<>())
+                        .riskLevel("LOW")
+                        .timestamp(LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME))
+                        .scanId(UUID.randomUUID().toString())
+                        .build();
+            }
 
             for (GithubCommitResponse.ChangedFile file : commit.getFiles()) {
                 ScannableContent content = commitContentService.getScannableContent(file);
@@ -48,29 +63,21 @@ public class SecretsDetectionService {
                 if (content.getContent().isBlank()) {
                     continue;
                 }
-                if (commit.getFiles() == null || commit.getFiles().isEmpty()) {
-
-                    return SecretsDetectionResponse.builder()
-                            .author(commit.getCommit().getAuthor().getName())
-                            .secretsFound(false)
-                            .findings(new ArrayList<>())
-                            .riskLevel("LOW")
-                            .timestamp(LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME))
-                            .scanId(UUID.randomUUID().toString())
-                            .build();
-                }
                 String analysisResult = geminiClient.analyzeForSecrets(content.getContent());
-                findings.addAll(
-                        parseFindings(
-                                analysisResult,
-                                content.getFileName()));
+                ScanSummary summary = parseFindings(
+                        analysisResult,
+                        content.getFileName());
+
+                allFindings.addAll(summary.getFindings());
+
+                riskLevels.add(summary.getRiskLevel());
             }
             return SecretsDetectionResponse.builder()
                     .fileName("")
                     .author(commit.getCommit().getAuthor().getName())
-                    .secretsFound(!findings.isEmpty())
-                    .findings(findings)
-                    .riskLevel(findings.isEmpty() ? "LOW" : "HIGH")
+                    .secretsFound(!allFindings.isEmpty())
+                    .findings(allFindings)
+                    .riskLevel(calculateOverallRisk(riskLevels))
                     .timestamp(LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME))
                     .scanId(UUID.randomUUID().toString())
                     .build();
@@ -80,11 +87,14 @@ public class SecretsDetectionService {
         }
     }
 
-    private List<SecretFinding> parseFindings(
+    private ScanSummary parseFindings(
             String analysisResult,
             String fileName) {
 
         List<SecretFinding> findings = new ArrayList<>();
+
+        boolean secretsFound = false;
+        String riskLevel = "LOW";
 
         try {
 
@@ -93,6 +103,10 @@ public class SecretsDetectionService {
             JsonNode rootNode = objectMapper.readTree(cleanedResponse);
 
             JsonNode findingsNode = rootNode.path("findings");
+
+            secretsFound = rootNode.path("secretsFound").asBoolean(false);
+
+            riskLevel = rootNode.path("riskLevel").asText("LOW");
 
             if (findingsNode.isArray()) {
 
@@ -104,7 +118,8 @@ public class SecretsDetectionService {
                             node.path("severity").asText(),
                             node.path("description").asText(),
                             node.path("lineContext").asText(),
-                            node.path("lineNumber").asInt(0));
+                            node.path("lineNumber").asInt(0),
+                            node.path("confidence").asText("MEDIUM"));
 
                     findings.add(finding);
                 });
@@ -114,7 +129,10 @@ public class SecretsDetectionService {
             log.error("Failed to parse Gemini response for file: {}", fileName, e);
         }
 
-        return findings;
+        return new ScanSummary(
+                secretsFound,
+                riskLevel,
+                findings);
     }
 
     private SecretsDetectionResponse buildErrorResponse(SecretsDetectionRequest request, String errorMessage) {
@@ -135,5 +153,22 @@ public class SecretsDetectionService {
                 .replace("```json", "")
                 .replace("```", "")
                 .trim();
+    }
+
+    private String calculateOverallRisk(List<String> riskLevels) {
+
+        if (riskLevels.contains("CRITICAL")) {
+            return "CRITICAL";
+        }
+
+        if (riskLevels.contains("HIGH")) {
+            return "HIGH";
+        }
+
+        if (riskLevels.contains("MEDIUM")) {
+            return "MEDIUM";
+        }
+
+        return "LOW";
     }
 }

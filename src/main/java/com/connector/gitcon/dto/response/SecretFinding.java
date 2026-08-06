@@ -14,4 +14,5 @@ public class SecretFinding {
     private String description;
     private String lineContext;
     private int lineNumber;
+    private String confidence;
 }

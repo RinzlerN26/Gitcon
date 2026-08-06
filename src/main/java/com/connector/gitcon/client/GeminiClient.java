@@ -59,43 +59,97 @@ public class GeminiClient {
         }
     }
 
-    private String buildSecretsDetectionPrompt(String commitContent) {
+    private String buildSecretsDetectionPrompt(String content) {
 
         return """
-                You are a cybersecurity expert.
+                You are a cybersecurity expert specializing in secret detection.
 
-                Analyze the following code/commit for:
-                - API keys
-                - Tokens
+                The following content contains newly added or modified lines from a Git commit.
+
+                Analyze ONLY the provided content for exposed secrets such as:
+                - GitHub Personal Access Tokens
+                - AWS Access Keys
+                - AWS Secret Keys
+                - Google API Keys
+                - Azure Keys
+                - JWT Secrets
+                - API Keys
+                - Access Tokens
                 - Passwords
-                - Private keys
-                - Hardcoded credentials
-                - Connection strings
-                - Sensitive secrets
+                - Private Keys
+                - Connection Strings
+                - Other hardcoded credentials
+
+                Rules:
+                - Analyze ONLY the provided content.
+                - Do NOT invent findings.
+                - Do NOT report placeholder values such as:
+                  - YOUR_API_KEY
+                  - CHANGE_ME
+                  - example
+                  - test
+                  - dummy
+                  - localhost
+                - Ignore environment variable references such as:
+                  System.getenv(...)
+                  process.env.*
+                  ${API_KEY}
+                - Report a finding only when the value appears to be a real secret.
+                - Keep descriptions concise.
+                - The lineNumber must refer to the provided snippet.
+                - Return ONLY valid JSON.
+                - Do not include markdown or code fences.
+
+                Allowed risk levels:
+                LOW
+                MEDIUM
+                HIGH
+                CRITICAL
+
+                Allowed secret types:
+                GITHUB_TOKEN
+                AWS_ACCESS_KEY
+                AWS_SECRET_KEY
+                GOOGLE_API_KEY
+                AZURE_KEY
+                JWT_SECRET
+                API_KEY
+                ACCESS_TOKEN
+                PASSWORD
+                PRIVATE_KEY
+                DATABASE_CONNECTION_STRING
+                OTHER_SECRET
 
                 Code:
                 ```
                 """
-                + commitContent +
+                + content +
                 """
                         ```
 
-                        Return ONLY valid JSON.
-
-                        Expected JSON format:
+                        Return exactly this JSON structure:
 
                         {
                           "secretsFound": true,
                           "riskLevel": "HIGH",
                           "findings": [
                             {
-                              "secretType": "API_KEY",
+                              "secretType": "GITHUB_TOKEN",
                               "severity": "HIGH",
-                              "description": "Hardcoded GitHub token detected",
-                              "lineContext": "String token = ghp_xxxxx",
-                              "lineNumber": 12
+                              "description": "Hardcoded GitHub Personal Access Token detected.",
+                              "lineContext": "String token = \\"ghp_xxxxxxxxx\\";",
+                              "lineNumber": 4,
+                              "confidence": "HIGH"
                             }
                           ]
+                        }
+
+                        If no secrets are found, return:
+
+                        {
+                          "secretsFound": false,
+                          "riskLevel": "LOW",
+                          "findings": []
                         }
                         """;
     }
