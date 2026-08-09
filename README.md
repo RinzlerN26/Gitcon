@@ -160,9 +160,10 @@ POST https://localhost:8080/api/security/scan-secrets
 
 ```json
 {
-  "commitContent": "String token = \"ghp_example\";",
-  "fileName": "Example.java",
-  "author": "John Doe"
+  "owner": "octocat",
+  "repository": "Hello-World",
+  "commitHash": "e4fa4ae5dd1d709ce4168397bd1d200fec1b2494",
+  "scanType": "SECRETS"
 }
 ```
 
@@ -211,7 +212,7 @@ You can test these APIs using:
 ## Tech Stack
 
 - Backend: Spring Boot
-- API Testing: Postman
+- API Testing: Postman, Swagger
 - Data Format: JSON
 
 ---
