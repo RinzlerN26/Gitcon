@@ -11,3 +11,29 @@ services:
       - "8080:8080"
     env_file:
       - .env
+
+  db-server:
+    image: postgres:alpine
+    container_name: gitcon-postgres
+    environment:
+      POSTGRES_DB: gitcon
+      POSTGRES_USER: gitcon
+      POSTGRES_PASSWORD: gitcon_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: gitcon-pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@gitcon.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "5050:80"
+    depends_on:
+      - db-server       
+
+volumes:
+  postgres_data:     
