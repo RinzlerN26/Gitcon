@@ -65,7 +65,7 @@ public class SecretsDetectionService {
                         .findings(new ArrayList<>())
                         .riskLevel("LOW")
                         .timestamp(LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME))
-                        .scanId(UUID.randomUUID().toString())
+                        .scanId(scanId)
                         .build();
             }
 
