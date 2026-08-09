@@ -55,6 +55,9 @@ public class SecretsDetectionService {
             SecurityScanner scanner = scannerFactory.getScanner(request.getScanType());
 
             if (commit.getFiles() == null || commit.getFiles().isEmpty()) {
+                scanHistoryService.completeScan(
+                        scanId,
+                        new ArrayList<>());
 
                 return SecretsDetectionResponse.builder()
                         .author(commit.getCommit().getAuthor().getName())
