@@ -33,7 +33,12 @@ public class SecurityController {
     })
     public ResponseEntity<SecretsDetectionResponse> scanForSecrets(
             @Valid @RequestBody SecretsDetectionRequest request) {
-        log.info("Received secrets scan request");
+        log.info(
+                "Received {} scan request for {}/{} commit {}",
+                request.getScanType(),
+                request.getOwner(),
+                request.getRepository(),
+                request.getCommitHash());
 
         SecretsDetectionResponse response = secretsDetectionService.scanForSecrets(request);
 
