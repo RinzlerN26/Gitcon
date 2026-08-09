@@ -34,7 +34,7 @@ services:
     ports:
       - "5050:80"
     depends_on:
-      - db-server    
+      - db-server     
 
 volumes:
-  postgres_data:      
+  postgres_data:
