@@ -60,7 +60,7 @@ Use the Maven wrapper to start the Spring Boot application (JDK>=21 should be in
 - Retrieve issues
 - Get commit history
 - Create pull requests
-- AI-powered secrets detection for commit/file content
+- AI-powered secrets detection for commit hash
 - RESTful API design with clear examples
 
 ---
