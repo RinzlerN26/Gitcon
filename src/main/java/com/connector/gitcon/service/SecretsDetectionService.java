@@ -7,6 +7,7 @@ import com.connector.gitcon.dto.response.ScanSummary;
 import com.connector.gitcon.dto.response.ScannableContent;
 import com.connector.gitcon.dto.response.SecretFinding;
 import com.connector.gitcon.dto.response.SecretsDetectionResponse;
+import com.connector.gitcon.entity.ScanFinding;
 import com.connector.gitcon.scanner.SecurityScanner;
 import com.connector.gitcon.scanner.SecurityScannerFactory;
 
@@ -16,7 +17,9 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Slf4j
@@ -25,11 +28,18 @@ import java.util.UUID;
 public class SecretsDetectionService {
 
     private final SecurityScannerFactory scannerFactory;
+    private final ScanHistoryService scanHistoryService;
     private final GithubClient githubClient;
 
     private final CommitContentService commitContentService;
 
     public SecretsDetectionResponse scanForSecrets(SecretsDetectionRequest request) {
+        String scanId = scanHistoryService.startScan(
+                request.getScanType(),
+                request.getOwner(),
+                request.getRepository(),
+                request.getCommitHash());
+
         try {
             log.info("Starting secrets scan for commit: {}", request.getCommitHash());
 
@@ -70,22 +80,46 @@ public class SecretsDetectionService {
 
                 riskLevels.add(summary.getRiskLevel());
             }
-            return SecretsDetectionResponse.builder()
+            String overallRisk = calculateOverallRisk(riskLevels);
+
+            SecretsDetectionResponse response = SecretsDetectionResponse.builder()
                     .fileName("")
-                    .author(commit.getCommit().getAuthor().getName())
+                    .author(
+                            commit.getCommit()
+                                    .getAuthor()
+                                    .getName())
                     .secretsFound(!allFindings.isEmpty())
                     .findings(allFindings)
-                    .riskLevel(calculateOverallRisk(riskLevels))
-                    .timestamp(LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME))
-                    .scanId(UUID.randomUUID().toString())
+                    .riskLevel(overallRisk)
+                    .timestamp(
+                            LocalDateTime.now()
+                                    .format(
+                                            DateTimeFormatter.ISO_DATE_TIME))
+                    .scanId(scanId)
                     .build();
+
+            List<ScanFinding> findings = allFindings.stream()
+                    .map(this::mapSecretFinding)
+                    .toList();
+
+            scanHistoryService.completeScan(
+                    scanId,
+                    findings);
+
+            return response;
         } catch (Exception e) {
             log.error("Error scanning for secrets", e);
-            return buildErrorResponse(request, e.getMessage());
+            scanHistoryService.failScan(scanId);
+
+            return buildErrorResponse(
+                    request,
+                    scanId,
+                    e.getMessage());
         }
     }
 
-    private SecretsDetectionResponse buildErrorResponse(SecretsDetectionRequest request, String errorMessage) {
+    private SecretsDetectionResponse buildErrorResponse(SecretsDetectionRequest request, String scanId,
+            String errorMessage) {
         return SecretsDetectionResponse.builder()
                 .fileName("")
                 .author("")
@@ -93,7 +127,7 @@ public class SecretsDetectionService {
                 .findings(new ArrayList<>())
                 .riskLevel("UNKNOWN")
                 .timestamp(LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME))
-                .scanId(UUID.randomUUID().toString())
+                .scanId(scanId)
                 .build();
     }
 
@@ -112,5 +146,25 @@ public class SecretsDetectionService {
         }
 
         return "LOW";
+    }
+
+    private ScanFinding mapSecretFinding(
+            SecretFinding finding) {
+
+        Map<String, Object> metadata = new HashMap<>();
+
+        metadata.put("secretType", finding.getSecretType());
+
+        return ScanFinding.builder()
+                .findingType("SECRET")
+                .severity(finding.getSeverity())
+                .title(finding.getSecretType())
+                .description(finding.getDescription())
+                .fileName(finding.getFileName())
+                .lineNumber(finding.getLineNumber())
+                .lineContext(finding.getLineContext())
+                .confidence(finding.getConfidence())
+                .metadata(metadata)
+                .build();
     }
 }

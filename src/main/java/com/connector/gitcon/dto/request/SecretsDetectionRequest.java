@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import com.connector.gitcon.enums.ScannerType;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 @Data
 @NoArgsConstructor
@@ -21,6 +22,6 @@ public class SecretsDetectionRequest {
     @NotBlank
     private String commitHash;
 
-    @NotBlank
+    @NotNull
     private ScannerType scanType;
 }

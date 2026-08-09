@@ -33,7 +33,7 @@ public class SecurityController {
     })
     public ResponseEntity<SecretsDetectionResponse> scanForSecrets(
             @Valid @RequestBody SecretsDetectionRequest request) {
-        log.info("Received secrets scan request for file: {}");
+        log.info("Received secrets scan request");
 
         SecretsDetectionResponse response = secretsDetectionService.scanForSecrets(request);
 
