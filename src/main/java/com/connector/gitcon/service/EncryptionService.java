@@ -9,118 +9,119 @@ import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.util.Base64;
+import java.util.HexFormat;
 
 @Service
 public class EncryptionService {
 
-    private static final String ALGORITHM = "AES/GCM/NoPadding";
-    private static final int GCM_TAG_LENGTH = 128;
-    private static final int IV_LENGTH = 12;
+        private static final String ALGORITHM = "AES/GCM/NoPadding";
+        private static final int GCM_TAG_LENGTH = 128;
+        private static final int IV_LENGTH = 12;
 
-    private final SecretKeySpec secretKey;
-    private final SecureRandom secureRandom;
+        private final SecretKeySpec secretKey;
+        private final SecureRandom secureRandom;
 
-    public EncryptionService(
-            @Value("${github.encryption.key}") String key) {
+        public EncryptionService(
+                        @Value("${github.encryption.key}") String key) {
 
-        byte[] decodedKey = Base64.getDecoder().decode(key);
+                byte[] decodedKey = HexFormat.of().parseHex(key);
 
-        if (decodedKey.length != 32) {
-            throw new IllegalArgumentException(
-                    "GITHUB_ENCRYPTION_KEY must decode to exactly 32 bytes");
+                if (decodedKey.length != 32) {
+                        throw new IllegalArgumentException(
+                                        "GITHUB_ENCRYPTION_KEY must decode to exactly 32 bytes");
+                }
+
+                this.secretKey = new SecretKeySpec(decodedKey, "AES");
+                this.secureRandom = new SecureRandom();
         }
 
-        this.secretKey = new SecretKeySpec(decodedKey, "AES");
-        this.secureRandom = new SecureRandom();
-    }
+        public String encrypt(String plainText) {
 
-    public String encrypt(String plainText) {
+                try {
+                        byte[] iv = new byte[IV_LENGTH];
+                        secureRandom.nextBytes(iv);
 
-        try {
-            byte[] iv = new byte[IV_LENGTH];
-            secureRandom.nextBytes(iv);
+                        Cipher cipher = Cipher.getInstance(ALGORITHM);
 
-            Cipher cipher = Cipher.getInstance(ALGORITHM);
+                        GCMParameterSpec parameterSpec = new GCMParameterSpec(GCM_TAG_LENGTH, iv);
 
-            GCMParameterSpec parameterSpec = new GCMParameterSpec(GCM_TAG_LENGTH, iv);
+                        cipher.init(
+                                        Cipher.ENCRYPT_MODE,
+                                        secretKey,
+                                        parameterSpec);
 
-            cipher.init(
-                    Cipher.ENCRYPT_MODE,
-                    secretKey,
-                    parameterSpec);
+                        byte[] encryptedBytes = cipher.doFinal(
+                                        plainText.getBytes(StandardCharsets.UTF_8));
 
-            byte[] encryptedBytes = cipher.doFinal(
-                    plainText.getBytes(StandardCharsets.UTF_8));
+                        byte[] combined = new byte[iv.length + encryptedBytes.length];
 
-            byte[] combined = new byte[iv.length + encryptedBytes.length];
+                        System.arraycopy(
+                                        iv,
+                                        0,
+                                        combined,
+                                        0,
+                                        iv.length);
 
-            System.arraycopy(
-                    iv,
-                    0,
-                    combined,
-                    0,
-                    iv.length);
+                        System.arraycopy(
+                                        encryptedBytes,
+                                        0,
+                                        combined,
+                                        iv.length,
+                                        encryptedBytes.length);
 
-            System.arraycopy(
-                    encryptedBytes,
-                    0,
-                    combined,
-                    iv.length,
-                    encryptedBytes.length);
+                        return Base64.getEncoder()
+                                        .encodeToString(combined);
 
-            return Base64.getEncoder()
-                    .encodeToString(combined);
-
-        } catch (Exception e) {
-            throw new IllegalStateException(
-                    "Failed to encrypt GitHub token",
-                    e);
+                } catch (Exception e) {
+                        throw new IllegalStateException(
+                                        "Failed to encrypt GitHub token",
+                                        e);
+                }
         }
-    }
 
-    public String decrypt(String encryptedText) {
+        public String decrypt(String encryptedText) {
 
-        try {
-            byte[] combined = Base64.getDecoder()
-                    .decode(encryptedText);
+                try {
+                        byte[] combined = Base64.getDecoder()
+                                        .decode(encryptedText);
 
-            byte[] iv = new byte[IV_LENGTH];
+                        byte[] iv = new byte[IV_LENGTH];
 
-            byte[] encryptedBytes = new byte[combined.length - IV_LENGTH];
+                        byte[] encryptedBytes = new byte[combined.length - IV_LENGTH];
 
-            System.arraycopy(
-                    combined,
-                    0,
-                    iv,
-                    0,
-                    IV_LENGTH);
+                        System.arraycopy(
+                                        combined,
+                                        0,
+                                        iv,
+                                        0,
+                                        IV_LENGTH);
 
-            System.arraycopy(
-                    combined,
-                    IV_LENGTH,
-                    encryptedBytes,
-                    0,
-                    encryptedBytes.length);
+                        System.arraycopy(
+                                        combined,
+                                        IV_LENGTH,
+                                        encryptedBytes,
+                                        0,
+                                        encryptedBytes.length);
 
-            Cipher cipher = Cipher.getInstance(ALGORITHM);
+                        Cipher cipher = Cipher.getInstance(ALGORITHM);
 
-            GCMParameterSpec parameterSpec = new GCMParameterSpec(GCM_TAG_LENGTH, iv);
+                        GCMParameterSpec parameterSpec = new GCMParameterSpec(GCM_TAG_LENGTH, iv);
 
-            cipher.init(
-                    Cipher.DECRYPT_MODE,
-                    secretKey,
-                    parameterSpec);
+                        cipher.init(
+                                        Cipher.DECRYPT_MODE,
+                                        secretKey,
+                                        parameterSpec);
 
-            byte[] decryptedBytes = cipher.doFinal(encryptedBytes);
+                        byte[] decryptedBytes = cipher.doFinal(encryptedBytes);
 
-            return new String(
-                    decryptedBytes,
-                    StandardCharsets.UTF_8);
+                        return new String(
+                                        decryptedBytes,
+                                        StandardCharsets.UTF_8);
 
-        } catch (Exception e) {
-            throw new IllegalStateException(
-                    "Failed to decrypt GitHub token",
-                    e);
+                } catch (Exception e) {
+                        throw new IllegalStateException(
+                                        "Failed to decrypt GitHub token",
+                                        e);
+                }
         }
-    }
 }
