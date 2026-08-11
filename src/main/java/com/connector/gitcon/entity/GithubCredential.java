@@ -23,6 +23,6 @@ public class GithubCredential {
     @Column(nullable = false)
     private String githubUsername;
 
-    @Column(nullable = false, length = 500)
+    @Column(nullable = false, columnDefinition = "TEXT")
     private String accessToken;
 }

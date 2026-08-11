@@ -1,9 +1,11 @@
 package com.connector.gitcon.service;
 
 import com.connector.gitcon.entity.User;
+import com.connector.gitcon.exception.CustomServiceException;
 import com.connector.gitcon.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -17,7 +19,7 @@ public class AuthService {
     public String register(String username, String password) {
 
         if (userRepository.existsByUsername(username)) {
-            throw new RuntimeException("Username already exists");
+            throw new CustomServiceException(HttpStatus.NOT_FOUND, "Username already exists");
         }
 
         User user = User.builder()
@@ -36,10 +38,10 @@ public class AuthService {
 
         User user = userRepository
                 .findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("Invalid username or password"));
+                .orElseThrow(() -> new CustomServiceException(HttpStatus.UNAUTHORIZED, "Invalid username or password"));
 
         if (!passwordEncoder.matches(password, user.getPassword())) {
-            throw new RuntimeException("Invalid username or password");
+            throw new CustomServiceException(HttpStatus.UNAUTHORIZED, "Invalid username or password");
         }
 
         return jwtService.generateToken(
