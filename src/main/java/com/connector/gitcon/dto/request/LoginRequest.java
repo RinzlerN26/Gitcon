@@ -6,9 +6,9 @@ import lombok.Data;
 @Data
 public class LoginRequest {
 
-    @Schema(description = "Registered username", example = "nishant")
+    @Schema(description = "Registered username", example = "octocat")
     private String username;
 
-    @Schema(description = "User password", example = "StrongPassword123")
+    @Schema(description = "User password", example = "password123")
     private String password;
 }

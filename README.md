@@ -17,6 +17,8 @@ Create a `.env` file in the root directory:
 ```env
 GITHUB_TOKEN=your_github_token_here
 GEMINI_API_KEY=your_gemini_api_key_here
+JWT_SECRET=your_jwt_secret_here
+GITHUB_ENCRYPTION_KEY=your_github_encryption_key_here
 ```
 
 Run the below command:
@@ -37,12 +39,16 @@ You need to set your GitHub Personal Access Token as an environment variable.
 
 ```powershell
 $env:GITHUB_TOKEN="your_github_token_here"
+$env:JWT_SECRET="your_jwt_secret_here"
+$env:GITHUB_ENCRYPTION_KEY="your_github_encryption_key_here"
 ```
 
 #### On macOS/Linux
 
 ```bash
 export GITHUB_TOKEN="your_github_token_here"
+export JWT_SECRET="your_jwt_secret_here"
+export GITHUB_ENCRYPTION_KEY="your_github_encryption_key_here"
 ```
 
 Use the Maven wrapper to start the Spring Boot application (JDK>=21 should be installed):
