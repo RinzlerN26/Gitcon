@@ -15,7 +15,7 @@ public class CommitContentService {
     private final FileTypeFilterService fileTypeFilterService;
 
     public ScannableContent getScannableContent(
-            GithubCommitResponse.ChangedFile file) {
+            GithubCommitResponse.ChangedFile file, String token) {
 
         if (!fileTypeFilterService.isScannable(file.getFilename())) {
             return ScannableContent.builder()
@@ -29,11 +29,11 @@ public class CommitContentService {
             return extractPatch(file);
         }
 
-        return downloadCompleteFile(file);
+        return downloadCompleteFile(file, token);
     }
 
     private ScannableContent downloadCompleteFile(
-            GithubCommitResponse.ChangedFile file) {
+            GithubCommitResponse.ChangedFile file, String token) {
 
         if (file.getContents_url() == null) {
 
@@ -45,7 +45,7 @@ public class CommitContentService {
                     .build();
         }
 
-        String content = githubClient.downloadFile(file.getContents_url());
+        String content = githubClient.downloadFile(file.getContents_url(), token);
 
         return ScannableContent.builder()
                 .fileName(file.getFilename())

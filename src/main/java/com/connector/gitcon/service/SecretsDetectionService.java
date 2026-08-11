@@ -70,7 +70,7 @@ public class SecretsDetectionService {
             }
 
             for (GithubCommitResponse.ChangedFile file : commit.getFiles()) {
-                ScannableContent content = commitContentService.getScannableContent(file);
+                ScannableContent content = commitContentService.getScannableContent(file, token);
                 if (content.isSkipped()) {
                     continue;
                 }
