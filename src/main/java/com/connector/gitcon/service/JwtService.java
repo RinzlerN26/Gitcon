@@ -45,10 +45,10 @@ public class JwtService {
                 .getSubject();
     }
 
-    public Long extractUserId(String token) {
+    public Integer extractUserId(String token) {
 
         return getClaims(token)
-                .get("userId", Long.class);
+                .get("userId", Integer.class);
     }
 
     public boolean isTokenValid(String token) {
