@@ -20,39 +20,47 @@ import org.springframework.stereotype.Service;
 public class GithubService {
 
     private final GithubClient githubClient;
+    private final GithubCredentialService githubCredentialService;
 
-    public List<RepoResponse> fetchRepositories() {
-        return githubClient.getUserRepositories();
+    public List<RepoResponse> fetchRepositories(Integer userId) {
+        return githubClient.getUserRepositories(githubCredentialService.getDecryptedToken(userId));
     }
 
-    public IssueResponse createIssue(CreateIssueRequest request) {
+    public IssueResponse createIssue(CreateIssueRequest request, Integer userId) {
         return githubClient.createIssue(
                 request.getOwner(),
                 request.getRepo(),
-                request);
+                request,
+                githubCredentialService.getDecryptedToken(userId));
     }
 
-    public List<IssueResponse> getRepoIssues(String owner, String repo) {
-        return githubClient.getRepoIssues(owner, repo);
+    public List<IssueResponse> getRepoIssues(String owner, String repo, Integer userId) {
+        String token = githubCredentialService.getDecryptedToken(userId);
+        return githubClient.getRepoIssues(owner, repo, token);
     }
 
-    public List<CommitResponse> getRepoCommits(String owner, String repo) {
-        return githubClient.getRepoCommits(owner, repo);
+    public List<CommitResponse> getRepoCommits(String owner, String repo, Integer userId) {
+        String token = githubCredentialService.getDecryptedToken(userId);
+        return githubClient.getRepoCommits(owner, repo, token);
     }
 
-    public PrResponse createPullRequest(String owner, String repo, CreatePrRequest request) {
-        return githubClient.createPullRequest(owner, repo, request);
+    public PrResponse createPullRequest(String owner, String repo, CreatePrRequest request, Integer userId) {
+        String token = githubCredentialService.getDecryptedToken(userId);
+        return githubClient.createPullRequest(owner, repo, request, token);
     }
 
     public GithubCommitResponse getCommitDetails(
             String owner,
             String repo,
-            String sha) {
+            String sha,
+            Integer userId) {
 
-        return githubClient.getCommitDetails(owner, repo, sha);
+        String token = githubCredentialService.getDecryptedToken(userId);
+        return githubClient.getCommitDetails(owner, repo, sha, token);
     }
 
-    public String downloadFile(String contentsUrl) {
-        return githubClient.downloadFile(contentsUrl);
+    public String downloadFile(String contentsUrl, Integer userId) {
+        String token = githubCredentialService.getDecryptedToken(userId);
+        return githubClient.downloadFile(contentsUrl, token);
     }
 }

@@ -28,11 +28,12 @@ public class SecretsDetectionService {
 
     private final SecurityScannerFactory scannerFactory;
     private final ScanHistoryService scanHistoryService;
+    private final GithubCredentialService githubCredentialService;
     private final GithubClient githubClient;
 
     private final CommitContentService commitContentService;
 
-    public SecretsDetectionResponse scanForSecrets(SecretsDetectionRequest request) {
+    public SecretsDetectionResponse scanForSecrets(SecretsDetectionRequest request, Integer userId) {
         String scanId = scanHistoryService.startScan(
                 request.getScanType(),
                 request.getOwner(),
@@ -41,11 +42,11 @@ public class SecretsDetectionService {
 
         try {
             log.info("Starting secrets scan for commit: {}", request.getCommitHash());
-
+            String token = githubCredentialService.getDecryptedToken(userId);
             GithubCommitResponse commit = githubClient.getCommitDetails(
                     request.getOwner(),
                     request.getRepository(),
-                    request.getCommitHash());
+                    request.getCommitHash(), token);
 
             List<SecretFinding> allFindings = new ArrayList<>();
 

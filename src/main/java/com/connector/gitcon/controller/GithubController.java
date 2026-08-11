@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.Authentication;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -25,10 +26,12 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 
 @RestController
 @RequiredArgsConstructor
 @Tag(name = "GitHub", description = "GitHub Repository Management APIs")
+@SecurityRequirement(name = "bearerAuth")
 public class GithubController {
 
         private final GithubService githubService;
@@ -40,8 +43,10 @@ public class GithubController {
                         @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content),
                         @ApiResponse(responseCode = "500", description = "Internal server error", content = @Content)
         })
-        public List<RepoResponse> getRepos() {
-                return githubService.fetchRepositories();
+        public List<RepoResponse> getRepos(Authentication authentication) {
+                Integer userId = (Integer) authentication.getPrincipal();
+
+                return githubService.fetchRepositories(userId);
         }
 
         @PostMapping("/api/github/issues")
@@ -51,8 +56,9 @@ public class GithubController {
                         @ApiResponse(responseCode = "400", description = "Invalid request", content = @Content),
                         @ApiResponse(responseCode = "404", description = "Repository not found", content = @Content)
         })
-        public IssueResponse createIssue(@RequestBody CreateIssueRequest request) {
-                return githubService.createIssue(request);
+        public IssueResponse createIssue(@RequestBody CreateIssueRequest request, Authentication authentication) {
+                Integer userId = (Integer) authentication.getPrincipal();
+                return githubService.createIssue(request, userId);
         }
 
         @GetMapping("/api/github/{owner}/{repo}/issues")
@@ -63,8 +69,10 @@ public class GithubController {
         })
         public ResponseEntity<List<IssueResponse>> getIssues(
                         @Parameter(description = "Repository owner", example = "octocat") @PathVariable String owner,
-                        @Parameter(description = "Repository name", example = "Hello-World") @PathVariable String repo) {
-                return ResponseEntity.ok(githubService.getRepoIssues(owner, repo));
+                        @Parameter(description = "Repository name", example = "Hello-World") @PathVariable String repo,
+                        Authentication authentication) {
+                Integer userId = (Integer) authentication.getPrincipal();
+                return ResponseEntity.ok(githubService.getRepoIssues(owner, repo, userId));
         }
 
         @GetMapping("/api/github/{owner}/{repo}/commits")
@@ -75,8 +83,10 @@ public class GithubController {
         })
         public ResponseEntity<List<CommitResponse>> getCommits(
                         @Parameter(description = "Repository owner", example = "octocat") @PathVariable String owner,
-                        @Parameter(description = "Repository name", example = "Hello-World") @PathVariable String repo) {
-                return ResponseEntity.ok(githubService.getRepoCommits(owner, repo));
+                        @Parameter(description = "Repository name", example = "Hello-World") @PathVariable String repo,
+                        Authentication authentication) {
+                Integer userId = (Integer) authentication.getPrincipal();
+                return ResponseEntity.ok(githubService.getRepoCommits(owner, repo, userId));
         }
 
         @PostMapping("/api/github/{owner}/{repo}/pulls")
@@ -89,9 +99,11 @@ public class GithubController {
         public ResponseEntity<PrResponse> createPullRequest(
                         @Parameter(description = "Repository owner", example = "octocat") @PathVariable String owner,
                         @Parameter(description = "Repository name", example = "Hello-World") @PathVariable String repo,
-                        @RequestBody CreatePrRequest request) {
+                        @RequestBody CreatePrRequest request,
+                        Authentication authentication) {
+                Integer userId = (Integer) authentication.getPrincipal();
                 return ResponseEntity.ok(
-                                githubService.createPullRequest(owner, repo, request));
+                                githubService.createPullRequest(owner, repo, request, userId));
         }
 
         @GetMapping("/api/github/{owner}/{repo}/commits/{sha}")
@@ -104,9 +116,11 @@ public class GithubController {
         public ResponseEntity<GithubCommitResponse> getCommitDetails(
                         @Parameter(description = "Repository owner", example = "octocat") @PathVariable String owner,
                         @Parameter(description = "Repository name", example = "Hello-World") @PathVariable String repo,
-                        @Parameter(description = "Commit SHA") @PathVariable String sha) {
+                        @Parameter(description = "Commit SHA") @PathVariable String sha,
+                        Authentication authentication) {
+                Integer userId = (Integer) authentication.getPrincipal();
 
                 return ResponseEntity.ok(
-                                githubService.getCommitDetails(owner, repo, sha));
+                                githubService.getCommitDetails(owner, repo, sha, userId));
         }
 }

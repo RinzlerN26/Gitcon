@@ -11,7 +11,6 @@ public class WebClientConfig {
     public WebClient webClient(GithubConfig githubConfig) {
         return WebClient.builder()
                 .baseUrl(githubConfig.getBaseUrl())
-                .defaultHeader("Authorization", "Bearer " + githubConfig.getToken())
                 .defaultHeader("Accept", "application/vnd.github+json")
                 .build();
     }

@@ -9,5 +9,4 @@ import org.springframework.context.annotation.Configuration;
 @ConfigurationProperties(prefix = "github")
 public class GithubConfig {
     private String baseUrl;
-    private String token;
 }

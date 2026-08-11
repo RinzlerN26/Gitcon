@@ -13,57 +13,68 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class GithubCredentialService {
 
-    private final GithubCredentialRepository githubCredentialRepository;
-    private final UserRepository userRepository;
-    private final EncryptionService encryptionService;
+        private final GithubCredentialRepository githubCredentialRepository;
+        private final UserRepository userRepository;
+        private final EncryptionService encryptionService;
 
-    public GithubCredentialResponse saveCredential(
-            Integer userId,
-            GithubCredentialRequest request) {
+        public GithubCredentialResponse saveCredential(
+                        Integer userId,
+                        GithubCredentialRequest request) {
 
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                User user = userRepository.findById(userId)
+                                .orElseThrow(() -> new RuntimeException("User not found"));
 
-        if (githubCredentialRepository.existsByUserId(userId)) {
-            throw new RuntimeException(
-                    "GitHub credential already exists");
+                if (githubCredentialRepository.existsByUserId(userId)) {
+                        throw new RuntimeException(
+                                        "GitHub credential already exists");
+                }
+
+                String encryptedToken = encryptionService.encrypt(
+                                request.getAccessToken());
+
+                GithubCredential credential = GithubCredential.builder()
+                                .user(user)
+                                .githubUsername(
+                                                request.getGithubUsername())
+                                .accessToken(encryptedToken)
+                                .build();
+
+                githubCredentialRepository.save(credential);
+
+                return new GithubCredentialResponse(
+                                credential.getGithubUsername());
         }
 
-        String encryptedToken = encryptionService.encrypt(
-                request.getAccessToken());
+        public GithubCredentialResponse getCredential(
+                        Integer userId) {
 
-        GithubCredential credential = GithubCredential.builder()
-                .user(user)
-                .githubUsername(
-                        request.getGithubUsername())
-                .accessToken(encryptedToken)
-                .build();
+                GithubCredential credential = githubCredentialRepository
+                                .findByUserId(userId)
+                                .orElseThrow(() -> new RuntimeException(
+                                                "GitHub credential not found"));
 
-        githubCredentialRepository.save(credential);
+                return new GithubCredentialResponse(
+                                credential.getGithubUsername());
+        }
 
-        return new GithubCredentialResponse(
-                credential.getGithubUsername());
-    }
+        public void deleteCredential(Integer userId) {
 
-    public GithubCredentialResponse getCredential(
-            Integer userId) {
+                GithubCredential credential = githubCredentialRepository
+                                .findByUserId(userId)
+                                .orElseThrow(() -> new RuntimeException(
+                                                "GitHub credential not found"));
 
-        GithubCredential credential = githubCredentialRepository
-                .findByUserId(userId)
-                .orElseThrow(() -> new RuntimeException(
-                        "GitHub credential not found"));
+                githubCredentialRepository.delete(credential);
+        }
 
-        return new GithubCredentialResponse(
-                credential.getGithubUsername());
-    }
+        public String getDecryptedToken(Integer userId) {
 
-    public void deleteCredential(Integer userId) {
+                GithubCredential credential = githubCredentialRepository
+                                .findByUserId(userId)
+                                .orElseThrow(() -> new RuntimeException(
+                                                "GitHub credential not found"));
 
-        GithubCredential credential = githubCredentialRepository
-                .findByUserId(userId)
-                .orElseThrow(() -> new RuntimeException(
-                        "GitHub credential not found"));
-
-        githubCredentialRepository.delete(credential);
-    }
+                return encryptionService.decrypt(
+                                credential.getAccessToken());
+        }
 }

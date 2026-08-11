@@ -26,10 +26,24 @@ public class GithubClient {
 
         private final WebClient webClient;
 
-        public List<RepoResponse> getUserRepositories() {
+        public <T> T get(
+                        String token,
+                        String uri,
+                        Class<T> responseType) {
+
+                return webClient.get()
+                                .uri(uri)
+                                .headers(headers -> headers.setBearerAuth(token))
+                                .retrieve()
+                                .bodyToMono(responseType)
+                                .block();
+        }
+
+        public List<RepoResponse> getUserRepositories(String token) {
                 return webClient
                                 .get()
                                 .uri("/user/repos")
+                                .headers(headers -> headers.setBearerAuth(token))
                                 .retrieve()
                                 .onStatus(
                                                 status -> status.isError(),
@@ -41,11 +55,12 @@ public class GithubClient {
                                 .block();
         }
 
-        public IssueResponse createIssue(String owner, String repo, CreateIssueRequest request) {
+        public IssueResponse createIssue(String owner, String repo, CreateIssueRequest request, String token) {
 
                 return webClient
                                 .post()
                                 .uri("/repos/{owner}/{repo}/issues", owner, repo)
+                                .headers(headers -> headers.setBearerAuth(token))
                                 .bodyValue(request)
                                 .retrieve()
                                 .onStatus(
@@ -57,9 +72,10 @@ public class GithubClient {
                                 .block();
         }
 
-        public List<IssueResponse> getRepoIssues(String owner, String repo) {
+        public List<IssueResponse> getRepoIssues(String owner, String repo, String token) {
                 return webClient.get()
                                 .uri("/repos/{owner}/{repo}/issues", owner, repo)
+                                .headers(headers -> headers.setBearerAuth(token))
                                 .retrieve()
                                 .onStatus(
                                                 status -> status.isError(),
@@ -73,12 +89,13 @@ public class GithubClient {
                                 .block();
         }
 
-        public List<CommitResponse> getRepoCommits(String owner, String repo) {
+        public List<CommitResponse> getRepoCommits(String owner, String repo, String token) {
                 return webClient.get()
                                 .uri(uriBuilder -> uriBuilder
                                                 .path("/repos/{owner}/{repo}/commits")
                                                 .queryParam("per_page", 100)
                                                 .build(owner, repo))
+                                .headers(headers -> headers.setBearerAuth(token))
                                 .retrieve()
                                 .onStatus(
                                                 status -> status.isError(),
@@ -91,9 +108,10 @@ public class GithubClient {
                                 .block();
         }
 
-        public PrResponse createPullRequest(String owner, String repo, CreatePrRequest request) {
+        public PrResponse createPullRequest(String owner, String repo, CreatePrRequest request, String token) {
                 return webClient.post()
                                 .uri("/repos/{owner}/{repo}/pulls", owner, repo)
+                                .headers(headers -> headers.setBearerAuth(token))
                                 .bodyValue(request)
                                 .retrieve()
                                 .onStatus(
@@ -109,11 +127,13 @@ public class GithubClient {
         public GithubCommitResponse getCommitDetails(
                         String owner,
                         String repo,
-                        String sha) {
+                        String sha,
+                        String token) {
 
                 return webClient
                                 .get()
                                 .uri("/repos/{owner}/{repo}/commits/{sha}", owner, repo, sha)
+                                .headers(headers -> headers.setBearerAuth(token))
                                 .retrieve()
                                 .onStatus(
                                                 status -> status.isError(),
@@ -124,11 +144,12 @@ public class GithubClient {
                                 .block();
         }
 
-        public String downloadFile(String contentsUrl) {
+        public String downloadFile(String contentsUrl, String token) {
 
                 GithubFileContentResponse response = webClient
                                 .get()
                                 .uri(contentsUrl.replace("https://api.github.com", ""))
+                                .headers(headers -> headers.setBearerAuth(token))
                                 .retrieve()
                                 .onStatus(
                                                 status -> status.isError(),

@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.core.Authentication;
 import jakarta.validation.Valid;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -14,11 +15,13 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 
 @Slf4j
 @RestController
 @RequestMapping("/api/security")
 @RequiredArgsConstructor
+@SecurityRequirement(name = "bearerAuth")
 @Tag(name = "Security", description = "Security scanning APIs")
 public class SecurityController {
 
@@ -32,7 +35,9 @@ public class SecurityController {
             @ApiResponse(responseCode = "500", description = "Internal server error", content = @Content)
     })
     public ResponseEntity<SecretsDetectionResponse> scanForSecrets(
-            @Valid @RequestBody SecretsDetectionRequest request) {
+            @Valid @RequestBody SecretsDetectionRequest request,
+            Authentication authentication) {
+        Integer userId = (Integer) authentication.getPrincipal();
         log.info(
                 "Received {} scan request for {}/{} commit {}",
                 request.getScanType(),
@@ -40,7 +45,7 @@ public class SecurityController {
                 request.getRepository(),
                 request.getCommitHash());
 
-        SecretsDetectionResponse response = secretsDetectionService.scanForSecrets(request);
+        SecretsDetectionResponse response = secretsDetectionService.scanForSecrets(request, userId);
 
         if (response.isSecretsFound()) {
             log.warn("Secrets found in file");
