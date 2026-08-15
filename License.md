@@ -1,6 +1,6 @@
 # Nishant Rathore Source-Available Personal License (NRSAPL) v1.0
 
-Copyright (c) 2026 Nishant Rathore
+Copyright (c) Nishant Rathore
 
 All rights reserved except as expressly granted below.
 
