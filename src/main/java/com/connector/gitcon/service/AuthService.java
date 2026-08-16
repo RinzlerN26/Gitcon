@@ -19,7 +19,7 @@ public class AuthService {
     public String register(String username, String password) {
 
         if (userRepository.existsByUsername(username)) {
-            throw new CustomServiceException(HttpStatus.NOT_FOUND, "Username already exists");
+            throw new CustomServiceException(HttpStatus.CONFLICT, "Username already exists");
         }
 
         User user = User.builder()
