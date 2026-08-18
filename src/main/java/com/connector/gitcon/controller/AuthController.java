@@ -25,18 +25,22 @@ public class AuthController {
         @PostMapping("/register")
         @Operation(summary = "Register a new user", description = "Creates a new Gitcon user and returns a JWT token")
         @ApiResponses({
-                        @ApiResponse(responseCode = "200", description = "User registered successfully", content = @Content(mediaType = "application/json", schema = @Schema(implementation = AuthResponse.class))),
+                        @ApiResponse(responseCode = "200", description = "User registered successfully", content = @Content(mediaType = "application/json", schema = @Schema(implementation = String.class))),
                         @ApiResponse(responseCode = "409", description = "Username already exists", content = @Content)
         })
-        public ResponseEntity<AuthResponse> register(
+        public ResponseEntity<String> register(
                         @RequestBody RegisterRequest request) {
 
                 String token = authService.register(
                                 request.getUsername(),
                                 request.getPassword());
 
+                if (token != null) {
+                        return ResponseEntity.ok(
+                                        "Registration successful");
+                }
                 return ResponseEntity.ok(
-                                new AuthResponse(token));
+                                "Something went wrong");
         }
 
         @PostMapping("/login")
