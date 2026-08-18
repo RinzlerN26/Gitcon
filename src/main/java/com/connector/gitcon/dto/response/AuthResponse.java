@@ -10,4 +10,7 @@ public class AuthResponse {
 
     @Schema(description = "JWT access token", example = "eyJhbGciOiJIUzI1NiJ9...")
     private String token;
+
+    @Schema(description = "Username", example = "octocat")
+    private String username;
 }

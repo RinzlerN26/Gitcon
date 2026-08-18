@@ -5,6 +5,7 @@ import com.connector.gitcon.dto.request.LoginRequest;
 import com.connector.gitcon.dto.request.RegisterRequest;
 import com.connector.gitcon.service.AuthService;
 import lombok.RequiredArgsConstructor;
+
 import org.springframework.http.ResponseEntity;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -28,19 +29,16 @@ public class AuthController {
                         @ApiResponse(responseCode = "200", description = "User registered successfully", content = @Content(mediaType = "application/json", schema = @Schema(implementation = String.class))),
                         @ApiResponse(responseCode = "409", description = "Username already exists", content = @Content)
         })
-        public ResponseEntity<String> register(
+        public ResponseEntity<AuthResponse> register(
                         @RequestBody RegisterRequest request) {
 
                 String token = authService.register(
                                 request.getUsername(),
                                 request.getPassword());
 
-                if (token != null) {
-                        return ResponseEntity.ok(
-                                        "Registration successful");
-                }
                 return ResponseEntity.ok(
-                                "Something went wrong");
+                                new AuthResponse(token, request.getUsername()));
+
         }
 
         @PostMapping("/login")
@@ -57,6 +55,6 @@ public class AuthController {
                                 request.getPassword());
 
                 return ResponseEntity.ok(
-                                new AuthResponse(token));
+                                new AuthResponse(token, request.getUsername()));
         }
 }
