@@ -48,4 +48,29 @@ public class AuthService {
                 user.getId(),
                 user.getUsername());
     }
+
+    public void changePassword(
+            Integer userId,
+            String currentPassword,
+            String newPassword) {
+
+        User user = userRepository
+                .findById(userId)
+                .orElseThrow(() -> new CustomServiceException(
+                        HttpStatus.UNAUTHORIZED,
+                        "User not found"));
+
+        if (!passwordEncoder.matches(
+                currentPassword,
+                user.getPassword())) {
+
+            throw new CustomServiceException(
+                    HttpStatus.UNAUTHORIZED,
+                    "Current password is incorrect");
+        }
+
+        user.setPassword(passwordEncoder.encode(newPassword));
+
+        userRepository.save(user);
+    }
 }

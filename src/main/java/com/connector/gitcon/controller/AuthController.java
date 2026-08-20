@@ -1,12 +1,15 @@
 package com.connector.gitcon.controller;
 
 import com.connector.gitcon.dto.response.AuthResponse;
+import com.connector.gitcon.dto.request.ChangePasswordRequest;
 import com.connector.gitcon.dto.request.LoginRequest;
 import com.connector.gitcon.dto.request.RegisterRequest;
 import com.connector.gitcon.service.AuthService;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -56,5 +59,24 @@ public class AuthController {
 
                 return ResponseEntity.ok(
                                 new AuthResponse(token, request.getUsername()));
+        }
+
+        @PostMapping("/change-password")
+        @Operation(summary = "Change password", description = "Changes the password of the currently authenticated user")
+        @ApiResponses({
+                        @ApiResponse(responseCode = "200", description = "Password changed successfully"),
+                        @ApiResponse(responseCode = "401", description = "Authentication required or current password is incorrect")
+        })
+        public ResponseEntity<Void> changePassword(
+                        @RequestBody ChangePasswordRequest request,
+                        Authentication authentication) {
+                Integer userId = (Integer) authentication.getPrincipal();
+
+                authService.changePassword(
+                                userId,
+                                request.getCurrentPassword(),
+                                request.getNewPassword());
+
+                return ResponseEntity.ok().build();
         }
 }
