@@ -15,6 +15,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.*;
 
@@ -67,6 +68,7 @@ public class AuthController {
                         @ApiResponse(responseCode = "200", description = "Password changed successfully"),
                         @ApiResponse(responseCode = "401", description = "Authentication required or current password is incorrect")
         })
+        @SecurityRequirement(name = "bearerAuth")
         public ResponseEntity<Void> changePassword(
                         @RequestBody ChangePasswordRequest request,
                         Authentication authentication) {
