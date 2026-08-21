@@ -26,19 +26,6 @@ public class GithubClient {
 
         private final WebClient webClient;
 
-        public <T> T get(
-                        String token,
-                        String uri,
-                        Class<T> responseType) {
-
-                return webClient.get()
-                                .uri(uri)
-                                .headers(headers -> headers.setBearerAuth(token))
-                                .retrieve()
-                                .bodyToMono(responseType)
-                                .block();
-        }
-
         public List<RepoResponse> getUserRepositories(String token) {
                 return webClient
                                 .get()
