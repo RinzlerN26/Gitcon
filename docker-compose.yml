@@ -1,17 +1,46 @@
-version: '3'
+version: "3.8"
 
 services:
-  
-  # spring-server:
-  #   build:
-  #     context: . 
-  #     dockerfile: Dockerfile
-  #     target: dev
-  #   container_name: gitcon-spring-server 
-  #   ports:
-  #     - "8080:8080" 
-  #   env_file:
-  #     - .env
+
+  spring-server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: dev
+    container_name: gitcon-spring-server
+    ports:
+      - "8080:8080"
+    env_file:
+      - .env
+    depends_on:
+      - db-server
+
+  ui:
+    build:
+      context: ../Gitcon-UI
+      dockerfile: Dockerfile.dev
+    container_name: gitcon-ui
+    ports:
+      - "5173:5173"
+    volumes:
+      - ../Gitcon-UI:/app
+      - ui_node_modules:/app/node_modules
+    environment:
+      - VITE_API_PROXY_TARGET=http://spring-server:8080
+      - CHOKIDAR_USEPOLLING=true
+    depends_on:
+      - spring-server
+
+  nginx:
+    image: nginx:alpine
+    container_name: gitcon-nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.dev.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - ui
+      - spring-server
 
   db-server:
     image: postgres:alpine
@@ -23,7 +52,7 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql
+      - postgres_data:/var/lib/postgresql/data
 
   pgadmin:
     image: dpage/pgadmin4:latest
@@ -34,7 +63,8 @@ services:
     ports:
       - "5050:80"
     depends_on:
-      - db-server     
+      - db-server
 
 volumes:
   postgres_data:
+  ui_node_modules:
