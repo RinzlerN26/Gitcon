@@ -15,11 +15,13 @@ services:
       - postgres_data:/var/lib/postgresql
 
   pgadmin:
-    image: dpage/pgadmin4:latest
+    build:
+      context: ./pgadmin
     container_name: gitcon-pgadmin
+    env_file:
+      - .env
     environment:
-      PGADMIN_DEFAULT_EMAIL: admin@gitcon.com
-      PGADMIN_DEFAULT_PASSWORD: admin
+      - DB_HOST=db-server   
     ports:
       - "5050:80"
     depends_on:

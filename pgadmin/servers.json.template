@@ -1,0 +1,14 @@
+{
+  "Servers": {
+    "1": {
+      "Name": "Gitcon",
+      "Group": "Servers",
+      "Host": "${DB_HOST}",
+      "Port": ${DB_PORT},
+      "MaintenanceDB": "${DB_NAME}",
+      "Username": "${DB_USER}",
+      "Password": "${DB_PASSWORD}",
+      "SSLMode": "prefer"
+    }
+  }
+}
