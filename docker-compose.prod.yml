@@ -12,6 +12,8 @@ services:
       - "8080:8080"
     env_file:
       - .env
+    environment:
+      - DB_HOST=db-server   
     depends_on:
       - db-server
 
