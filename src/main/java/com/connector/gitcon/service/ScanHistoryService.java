@@ -2,6 +2,7 @@ package com.connector.gitcon.service;
 
 import com.connector.gitcon.entity.ScanFinding;
 import com.connector.gitcon.entity.SecurityScan;
+import com.connector.gitcon.entity.User;
 import com.connector.gitcon.enums.ScanStatus;
 import com.connector.gitcon.enums.ScannerType;
 import com.connector.gitcon.repository.SecurityScanRepository;
@@ -26,13 +27,15 @@ public class ScanHistoryService {
             ScannerType scanType,
             String owner,
             String repository,
-            String commitHash) {
+            String commitHash,
+            User user) {
 
         String scanId = UUID.randomUUID().toString();
         LocalDateTime now = LocalDateTime.now();
 
         SecurityScan scan = SecurityScan.builder()
                 .scanId(scanId)
+                .user(user)
                 .scanType(scanType)
                 .owner(owner)
                 .repository(repository)

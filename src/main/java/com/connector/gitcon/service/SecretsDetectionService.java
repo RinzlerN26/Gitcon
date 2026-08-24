@@ -8,11 +8,16 @@ import com.connector.gitcon.dto.response.ScannableContent;
 import com.connector.gitcon.dto.response.SecretFinding;
 import com.connector.gitcon.dto.response.SecretsDetectionResponse;
 import com.connector.gitcon.entity.ScanFinding;
+import com.connector.gitcon.entity.User;
+import com.connector.gitcon.exception.CustomServiceException;
+import com.connector.gitcon.repository.UserRepository;
 import com.connector.gitcon.scanner.SecurityScanner;
 import com.connector.gitcon.scanner.SecurityScannerFactory;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -29,16 +34,21 @@ public class SecretsDetectionService {
     private final SecurityScannerFactory scannerFactory;
     private final ScanHistoryService scanHistoryService;
     private final GithubCredentialService githubCredentialService;
+    private final UserRepository userRepository;
     private final GithubClient githubClient;
 
     private final CommitContentService commitContentService;
 
     public SecretsDetectionResponse scanForSecrets(SecretsDetectionRequest request, Integer userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new CustomServiceException(HttpStatus.NOT_FOUND, "User not found"));
+
         String scanId = scanHistoryService.startScan(
                 request.getScanType(),
                 request.getOwner(),
                 request.getRepository(),
-                request.getCommitHash());
+                request.getCommitHash(),
+                user);
 
         try {
             log.info("Starting secrets scan for commit: {}", request.getCommitHash());
