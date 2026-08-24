@@ -1,0 +1,42 @@
+package com.connector.gitcon.controller;
+
+import com.connector.gitcon.dto.response.ScanHistoryResponse;
+import com.connector.gitcon.service.ScanHistoryService;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
+
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/security")
+@SecurityRequirement(name = "bearerAuth")
+@Tag(name = "Scan History", description = "APIs for viewing security scan history")
+@RequiredArgsConstructor
+public class ScanHistoryController {
+
+    private final ScanHistoryService scanHistoryService;
+
+    @GetMapping("/scans")
+    @Operation(summary = "Get scan history", description = "Returns the security scan history for the currently authenticated user.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Scan history retrieved successfully"),
+            @ApiResponse(responseCode = "401", description = "User is not authenticated")
+    })
+    public List<ScanHistoryResponse> getScanHistory(
+            Authentication authentication) {
+
+        Integer userId = (Integer) authentication.getPrincipal();
+
+        return scanHistoryService.getUserScanHistory(userId);
+    }
+}
