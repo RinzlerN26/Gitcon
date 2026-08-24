@@ -1,5 +1,6 @@
 package com.connector.gitcon.service;
 
+import com.connector.gitcon.dto.response.ScanHistoryResponse;
 import com.connector.gitcon.entity.ScanFinding;
 import com.connector.gitcon.entity.SecurityScan;
 import com.connector.gitcon.entity.User;
@@ -84,5 +85,26 @@ public class ScanHistoryService {
 
                     securityScanRepository.save(scan);
                 });
+    }
+
+    @Transactional(readOnly = true)
+    public List<ScanHistoryResponse> getUserScanHistory(Integer userId) {
+
+        return securityScanRepository
+                .findByUser_IdOrderByCreatedAtDesc(userId)
+                .stream()
+                .map(scan -> ScanHistoryResponse.builder()
+                        .scanId(scan.getScanId())
+                        .scanType(scan.getScanType().name())
+                        .owner(scan.getOwner())
+                        .repository(scan.getRepository())
+                        .commitHash(scan.getCommitHash())
+                        .status(scan.getStatus().name())
+                        .totalFindings(scan.getTotalFindings())
+                        .startedAt(scan.getStartedAt())
+                        .completedAt(scan.getCompletedAt())
+                        .createdAt(scan.getCreatedAt())
+                        .build())
+                .toList();
     }
 }
