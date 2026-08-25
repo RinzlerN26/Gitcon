@@ -14,67 +14,67 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/github/credentials")
+@RequestMapping("/api/github/credentials")
 @RequiredArgsConstructor
 @SecurityRequirement(name = "bearerAuth")
 @Tag(name = "GitHub Credentials", description = "Manage GitHub credentials for the authenticated user")
 public class GithubCredentialController {
 
-    private final GithubCredentialService githubCredentialService;
+        private final GithubCredentialService githubCredentialService;
 
-    @Operation(summary = "Save GitHub credential", description = "Stores the authenticated user's GitHub credential securely")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "GitHub credential saved successfully"),
-            @ApiResponse(responseCode = "400", description = "GitHub credential already exists"),
-            @ApiResponse(responseCode = "401", description = "Authentication required")
-    })
-    @PostMapping
-    public ResponseEntity<GithubCredentialResponse> saveCredential(
-            @RequestBody GithubCredentialRequest request,
-            Authentication authentication) {
+        @Operation(summary = "Save GitHub credential", description = "Stores the authenticated user's GitHub credential securely")
+        @ApiResponses({
+                        @ApiResponse(responseCode = "200", description = "GitHub credential saved successfully"),
+                        @ApiResponse(responseCode = "400", description = "GitHub credential already exists"),
+                        @ApiResponse(responseCode = "401", description = "Authentication required")
+        })
+        @PostMapping
+        public ResponseEntity<GithubCredentialResponse> saveCredential(
+                        @RequestBody GithubCredentialRequest request,
+                        Authentication authentication) {
 
-        Integer userId = (Integer) authentication.getPrincipal();
+                Integer userId = (Integer) authentication.getPrincipal();
 
-        GithubCredentialResponse response = githubCredentialService.saveCredential(
-                userId,
-                request);
+                GithubCredentialResponse response = githubCredentialService.saveCredential(
+                                userId,
+                                request);
 
-        return ResponseEntity.ok(response);
-    }
+                return ResponseEntity.ok(response);
+        }
 
-    @Operation(summary = "Get GitHub credential", description = "Returns GitHub account information for the authenticated user. The access token is never returned.")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "GitHub credential found"),
-            @ApiResponse(responseCode = "401", description = "Authentication required"),
-            @ApiResponse(responseCode = "404", description = "GitHub credential not found")
-    })
-    @GetMapping
-    public ResponseEntity<GithubCredentialResponse> getCredential(
-            Authentication authentication) {
+        @Operation(summary = "Get GitHub credential", description = "Returns GitHub account information for the authenticated user. The access token is never returned.")
+        @ApiResponses({
+                        @ApiResponse(responseCode = "200", description = "GitHub credential found"),
+                        @ApiResponse(responseCode = "401", description = "Authentication required"),
+                        @ApiResponse(responseCode = "404", description = "GitHub credential not found")
+        })
+        @GetMapping
+        public ResponseEntity<GithubCredentialResponse> getCredential(
+                        Authentication authentication) {
 
-        Integer userId = (Integer) authentication.getPrincipal();
+                Integer userId = (Integer) authentication.getPrincipal();
 
-        GithubCredentialResponse response = githubCredentialService.getCredential(
-                userId);
+                GithubCredentialResponse response = githubCredentialService.getCredential(
+                                userId);
 
-        return ResponseEntity.ok(response);
-    }
+                return ResponseEntity.ok(response);
+        }
 
-    @Operation(summary = "Delete GitHub credential", description = "Deletes the authenticated user's stored GitHub credential")
-    @ApiResponses({
-            @ApiResponse(responseCode = "204", description = "GitHub credential deleted successfully"),
-            @ApiResponse(responseCode = "401", description = "Authentication required"),
-            @ApiResponse(responseCode = "404", description = "GitHub credential not found")
-    })
-    @DeleteMapping
-    public ResponseEntity<Void> deleteCredential(
-            Authentication authentication) {
+        @Operation(summary = "Delete GitHub credential", description = "Deletes the authenticated user's stored GitHub credential")
+        @ApiResponses({
+                        @ApiResponse(responseCode = "204", description = "GitHub credential deleted successfully"),
+                        @ApiResponse(responseCode = "401", description = "Authentication required"),
+                        @ApiResponse(responseCode = "404", description = "GitHub credential not found")
+        })
+        @DeleteMapping
+        public ResponseEntity<Void> deleteCredential(
+                        Authentication authentication) {
 
-        Integer userId = (Integer) authentication.getPrincipal();
+                Integer userId = (Integer) authentication.getPrincipal();
 
-        githubCredentialService.deleteCredential(
-                userId);
+                githubCredentialService.deleteCredential(
+                                userId);
 
-        return ResponseEntity.noContent().build();
-    }
+                return ResponseEntity.noContent().build();
+        }
 }
