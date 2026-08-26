@@ -40,7 +40,6 @@ public class GithubController {
         @Operation(summary = "Get authenticated user repositories", description = "Returns all GitHub repositories accessible by the authenticated user.")
         @ApiResponses({
                         @ApiResponse(responseCode = "200", description = "Repositories fetched successfully"),
-                        @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content),
                         @ApiResponse(responseCode = "500", description = "Internal server error", content = @Content)
         })
         public List<RepoResponse> getRepos(Authentication authentication) {
@@ -111,7 +110,6 @@ public class GithubController {
         @ApiResponses({
                         @ApiResponse(responseCode = "200", description = "Commit details fetched successfully"),
                         @ApiResponse(responseCode = "404", description = "Commit not found", content = @Content),
-                        @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content)
         })
         public ResponseEntity<GithubCommitResponse> getCommitDetails(
                         @Parameter(description = "Repository owner", example = "octocat") @PathVariable String owner,

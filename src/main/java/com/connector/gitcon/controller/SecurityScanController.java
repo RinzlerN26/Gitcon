@@ -31,7 +31,6 @@ public class SecurityScanController {
         @Operation(summary = "Get scan history", description = "Returns the security scan history for the currently authenticated user.")
         @ApiResponses({
                         @ApiResponse(responseCode = "200", description = "Scan history retrieved successfully"),
-                        @ApiResponse(responseCode = "401", description = "User is not authenticated")
         })
         public List<ScanHistoryResponse> getScanHistory(
                         Authentication authentication) {
@@ -45,7 +44,6 @@ public class SecurityScanController {
         @Operation(summary = "Get security scan count", description = "Returns the total number of security scans performed by the currently authenticated user.")
         @ApiResponses({
                         @ApiResponse(responseCode = "200", description = "Scan count retrieved successfully"),
-                        @ApiResponse(responseCode = "401", description = "User is not authenticated")
         })
         public ScanCountResponse getScanCount(
                         Authentication authentication) {
