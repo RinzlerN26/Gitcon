@@ -19,40 +19,40 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/security")
+@RequestMapping("/api/security/scans")
 @SecurityRequirement(name = "bearerAuth")
 @Tag(name = "Scan History", description = "APIs for viewing security scan history")
 @RequiredArgsConstructor
 public class ScanHistoryController {
 
-    private final ScanHistoryService scanHistoryService;
+        private final ScanHistoryService scanHistoryService;
 
-    @GetMapping("/scans")
-    @Operation(summary = "Get scan history", description = "Returns the security scan history for the currently authenticated user.")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Scan history retrieved successfully"),
-            @ApiResponse(responseCode = "401", description = "User is not authenticated")
-    })
-    public List<ScanHistoryResponse> getScanHistory(
-            Authentication authentication) {
+        @GetMapping("/history")
+        @Operation(summary = "Get scan history", description = "Returns the security scan history for the currently authenticated user.")
+        @ApiResponses({
+                        @ApiResponse(responseCode = "200", description = "Scan history retrieved successfully"),
+                        @ApiResponse(responseCode = "401", description = "User is not authenticated")
+        })
+        public List<ScanHistoryResponse> getScanHistory(
+                        Authentication authentication) {
 
-        Integer userId = (Integer) authentication.getPrincipal();
+                Integer userId = (Integer) authentication.getPrincipal();
 
-        return scanHistoryService.getUserScanHistory(userId);
-    }
+                return scanHistoryService.getUserScanHistory(userId);
+        }
 
-    @GetMapping("/count")
-    @Operation(summary = "Get security scan count", description = "Returns the total number of security scans performed by the currently authenticated user.")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Scan count retrieved successfully"),
-            @ApiResponse(responseCode = "401", description = "User is not authenticated")
-    })
-    public ScanCountResponse getScanCount(
-            Authentication authentication) {
+        @GetMapping("/count")
+        @Operation(summary = "Get security scan count", description = "Returns the total number of security scans performed by the currently authenticated user.")
+        @ApiResponses({
+                        @ApiResponse(responseCode = "200", description = "Scan count retrieved successfully"),
+                        @ApiResponse(responseCode = "401", description = "User is not authenticated")
+        })
+        public ScanCountResponse getScanCount(
+                        Authentication authentication) {
 
-        Integer userId = (Integer) authentication.getPrincipal();
+                Integer userId = (Integer) authentication.getPrincipal();
 
-        return new ScanCountResponse(
-                scanHistoryService.getUserScanCount(userId));
-    }
+                return new ScanCountResponse(
+                                scanHistoryService.getUserScanCount(userId));
+        }
 }
