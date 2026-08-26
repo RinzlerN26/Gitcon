@@ -23,7 +23,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-public class ScanHistoryService {
+public class SecurityScanService {
 
     private final SecurityScanRepository securityScanRepository;
 

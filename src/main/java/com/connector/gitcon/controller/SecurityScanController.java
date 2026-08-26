@@ -2,7 +2,7 @@ package com.connector.gitcon.controller;
 
 import com.connector.gitcon.dto.response.ScanCountResponse;
 import com.connector.gitcon.dto.response.ScanHistoryResponse;
-import com.connector.gitcon.service.ScanHistoryService;
+import com.connector.gitcon.service.SecurityScanService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -23,9 +23,9 @@ import java.util.List;
 @SecurityRequirement(name = "bearerAuth")
 @Tag(name = "Scan History", description = "APIs for viewing security scan history")
 @RequiredArgsConstructor
-public class ScanHistoryController {
+public class SecurityScanController {
 
-        private final ScanHistoryService scanHistoryService;
+        private final SecurityScanService securityScanService;
 
         @GetMapping("/history")
         @Operation(summary = "Get scan history", description = "Returns the security scan history for the currently authenticated user.")
@@ -38,7 +38,7 @@ public class ScanHistoryController {
 
                 Integer userId = (Integer) authentication.getPrincipal();
 
-                return scanHistoryService.getUserScanHistory(userId);
+                return securityScanService.getUserScanHistory(userId);
         }
 
         @GetMapping("/count")
@@ -53,6 +53,6 @@ public class ScanHistoryController {
                 Integer userId = (Integer) authentication.getPrincipal();
 
                 return new ScanCountResponse(
-                                scanHistoryService.getUserScanCount(userId));
+                                securityScanService.getUserScanCount(userId));
         }
 }
