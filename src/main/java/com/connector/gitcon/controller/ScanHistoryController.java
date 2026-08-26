@@ -1,5 +1,6 @@
 package com.connector.gitcon.controller;
 
+import com.connector.gitcon.dto.response.ScanCountResponse;
 import com.connector.gitcon.dto.response.ScanHistoryResponse;
 import com.connector.gitcon.service.ScanHistoryService;
 
@@ -38,5 +39,20 @@ public class ScanHistoryController {
         Integer userId = (Integer) authentication.getPrincipal();
 
         return scanHistoryService.getUserScanHistory(userId);
+    }
+
+    @GetMapping("/count")
+    @Operation(summary = "Get security scan count", description = "Returns the total number of security scans performed by the currently authenticated user.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Scan count retrieved successfully"),
+            @ApiResponse(responseCode = "401", description = "User is not authenticated")
+    })
+    public ScanCountResponse getScanCount(
+            Authentication authentication) {
+
+        Integer userId = (Integer) authentication.getPrincipal();
+
+        return new ScanCountResponse(
+                scanHistoryService.getUserScanCount(userId));
     }
 }

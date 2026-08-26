@@ -1,6 +1,7 @@
 package com.connector.gitcon.repository;
 
 import com.connector.gitcon.entity.SecurityScan;
+import com.connector.gitcon.entity.User;
 import com.connector.gitcon.enums.ScannerType;
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -23,4 +24,6 @@ public interface SecurityScanRepository
 
         List<SecurityScan> findByUser_IdOrderByCreatedAtDesc(
                         Integer userId);
+
+        long countByUser(User user);
 }

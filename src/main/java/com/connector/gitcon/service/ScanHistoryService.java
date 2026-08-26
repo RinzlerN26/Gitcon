@@ -6,9 +6,13 @@ import com.connector.gitcon.entity.SecurityScan;
 import com.connector.gitcon.entity.User;
 import com.connector.gitcon.enums.ScanStatus;
 import com.connector.gitcon.enums.ScannerType;
+import com.connector.gitcon.exception.CustomServiceException;
 import com.connector.gitcon.repository.SecurityScanRepository;
+import com.connector.gitcon.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,6 +26,8 @@ import java.util.UUID;
 public class ScanHistoryService {
 
     private final SecurityScanRepository securityScanRepository;
+
+    private final UserRepository userRepository;
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public String startScan(
@@ -59,7 +65,7 @@ public class ScanHistoryService {
 
         SecurityScan scan = securityScanRepository
                 .findByScanId(scanId)
-                .orElseThrow(() -> new IllegalArgumentException(
+                .orElseThrow(() -> new CustomServiceException(HttpStatus.NOT_FOUND,
                         "Scan not found: " + scanId));
 
         for (ScanFinding finding : findings) {
@@ -106,5 +112,13 @@ public class ScanHistoryService {
                         .createdAt(scan.getCreatedAt())
                         .build())
                 .toList();
+    }
+
+    public long getUserScanCount(Integer userId) {
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new CustomServiceException(HttpStatus.NOT_FOUND, "User not found: " + userId));
+
+        return securityScanRepository.countByUser(user);
     }
 }
